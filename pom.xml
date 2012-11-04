@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.485</version>
+  </parent>
+
+  <groupId>org.jenkins-ci.modules</groupId>
+  <artifactId>windows-slave-installer</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jenkins-module</packaging>
+  <name>Windows slave installer</name>
+  <description>Adds a GUI option to install the JNLP slave agent as a Windows service</description>
+
+  <scm>
+    <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-module.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}-module.git</developerConnection>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://jenkins-ci.org/mit-license</url>
+    </license>
+  </licenses>
+
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
+    </repository>
+  </repositories>
+
+  <!--
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jenkins-ci.tools</groupId>
+        <artifactId>maven-hpi-plugin</artifactId>
+        <version>1.85</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+  -->
+
+</project>
