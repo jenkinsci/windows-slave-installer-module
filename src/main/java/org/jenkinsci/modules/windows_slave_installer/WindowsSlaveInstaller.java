@@ -2,7 +2,6 @@ package org.jenkinsci.modules.windows_slave_installer;
 
 import com.sun.jna.Native;
 import hudson.Launcher.LocalLauncher;
-import hudson.lifecycle.Messages;
 import hudson.model.TaskListener;
 import hudson.util.StreamTaskListener;
 import hudson.util.jna.DotNet;
