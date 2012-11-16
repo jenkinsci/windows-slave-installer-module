@@ -14,6 +14,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.modules.slave_installer.InstallationException;
 import org.jenkinsci.modules.slave_installer.LaunchConfiguration;
+import org.jenkinsci.modules.slave_installer.Prompter;
 import org.jenkinsci.modules.slave_installer.SlaveInstaller;
 import org.jvnet.localizer.Localizable;
 
@@ -82,7 +83,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
 
 
     @Override
-    public void install(LaunchConfiguration params) throws InstallationException, IOException, InterruptedException {
+    public void install(LaunchConfiguration params, Prompter prompter) throws InstallationException, IOException, InterruptedException {
         if(!DotNet.isInstalled(2,0))
             throw new InstallationException(Messages.WindowsSlaveInstaller_DotNetRequired());
 
