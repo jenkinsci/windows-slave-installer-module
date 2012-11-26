@@ -3,6 +3,7 @@ package org.jenkinsci.modules.windows_slave_installer;
 import hudson.Extension;
 import hudson.Util;
 import hudson.remoting.Callable;
+import hudson.remoting.Channel;
 import hudson.slaves.SlaveComputer;
 import org.apache.commons.codec.binary.Base64;
 import org.jenkinsci.main.modules.instance_identity.InstanceIdentity;
@@ -23,10 +24,15 @@ public class SlaveInstallerFactoryImpl extends SlaveInstallerFactory {
     InstanceIdentity id;
 
     @Override
-    public SlaveInstaller createIfApplicable(SlaveComputer c) throws IOException, InterruptedException {
-        if (Boolean.FALSE.equals(c.isUnix())) {
-            return new WindowsSlaveInstaller(c.getNode().getRemoteFS());
-        }
+    public SlaveInstaller createIfApplicable(Channel c) throws IOException, InterruptedException {
+        if (c.call(new IsWindows()))
+            return new WindowsSlaveInstaller();
         return null;
+    }
+
+    private static final class IsWindows implements Callable<Boolean,IOException> {
+        public Boolean call() throws IOException {
+            return File.pathSeparatorChar==';';
+        }
     }
 }

@@ -28,14 +28,7 @@ import static hudson.util.jna.SHELLEXECUTEINFO.*;
  * @author Kohsuke Kawaguchi
  */
 public class WindowsSlaveInstaller extends SlaveInstaller {
-    /**
-     * Root directory of this slave.
-     * String, not File because the platform can be different.
-     */
-    private final String rootDir;
-
-    public WindowsSlaveInstaller(String rootDir) {
-        this.rootDir = rootDir;
+    public WindowsSlaveInstaller() {
     }
 
     @Override
@@ -87,16 +80,16 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         if(!DotNet.isInstalled(2,0))
             throw new InstallationException(Messages.WindowsSlaveInstaller_DotNetRequired());
 
-        final File dir = new File(rootDir);
+        final File dir = params.getStorage().getAbsoluteFile();
         if (!dir.exists())
-            throw new InstallationException(Messages.WindowsSlaveInstaller_RootFsDoesntExist(rootDir));
+            throw new InstallationException(Messages.WindowsSlaveInstaller_RootFsDoesntExist(dir));
 
         final File slaveExe = new File(dir, "jenkins-slave.exe");
         FileUtils.copyURLToFile(getClass().getResource("/windows-service/jenkins.exe"), slaveExe);
 
         // write out the descriptor
         String xml = generateSlaveXml(
-                generateServiceId(rootDir),
+                generateServiceId(dir.getPath()),
                 System.getProperty("java.home")+"\\bin\\java.exe", null, params.buildRunnerArguments().toStringWithQuote());
         FileUtils.writeStringToFile(new File(dir, "jenkins-slave.xml"),xml,"UTF-8");
 
