@@ -87,6 +87,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         final File slaveExe = new File(dir, "jenkins-slave.exe");
         FileUtils.copyURLToFile(getClass().getResource("/windows-service/jenkins.exe"), slaveExe);
 
+        FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe.config"),
+                new File(dir,"jenkins-slave.exe.config"));
+
         // write out the descriptor
         String xml = generateSlaveXml(
                 generateServiceId(dir.getPath()),
