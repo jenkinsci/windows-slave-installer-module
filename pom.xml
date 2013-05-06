@@ -8,7 +8,7 @@
 
   <groupId>org.jenkins-ci.modules</groupId>
   <artifactId>windows-slave-installer</artifactId>
-  <version>1.3</version>
+  <version>1.4-SNAPSHOT</version>
   <packaging>jenkins-module</packaging>
   <name>Windows slave installer</name>
   <description>Adds a GUI option to install the JNLP slave agent as a Windows service</description>
