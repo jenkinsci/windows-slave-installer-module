@@ -33,6 +33,32 @@
         <version>1.90</version>
         <extensions>true</extensions>
       </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>winsw</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <!-- we use copy as this is a dependency from outside the reactor -->
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.sun.winsw</groupId>
+                  <artifactId>winsw</artifactId>
+                  <version>1.13</version>
+                  <classifier>bin</classifier>
+                  <type>exe</type>
+                  <outputDirectory>${project.build.outputDirectory}/org/jenkinsci/modules/windows_slave_installer</outputDirectory>
+                  <destFileName>jenkins-slave.exe</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
