@@ -68,12 +68,12 @@ public class SlaveExeUpdater extends ComputerListener {
                             listener.getLogger().println("Looks like jenkins-slave.exe.bak is currently running. aborting overwrite");
                             return null;
                         }
-
-                        tmp.copyFrom(ourExe);
-                        slaveExe.renameTo(backup);
-                        tmp.renameTo(slaveExe);
-                        listener.getLogger().println("Scheduled overwrite of jenkins-slave.exe on the next service startup");
                     }
+
+                    tmp.copyFrom(ourExe);
+                    slaveExe.renameTo(backup);
+                    tmp.renameTo(slaveExe);
+                    listener.getLogger().println("Scheduled overwrite of jenkins-slave.exe on the next service startup");
                 } catch (Throwable e) {
                     e.printStackTrace(listener.error("Failed to update jenkins-slave.exe"));
                 }
