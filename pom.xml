@@ -48,7 +48,7 @@
                 <artifactItem>
                   <groupId>com.sun.winsw</groupId>
                   <artifactId>winsw</artifactId>
-                  <version>1.13</version>
+                  <version>1.15</version>
                   <classifier>bin</classifier>
                   <type>exe</type>
                   <outputDirectory>${project.build.outputDirectory}/org/jenkinsci/modules/windows_slave_installer</outputDirectory>
