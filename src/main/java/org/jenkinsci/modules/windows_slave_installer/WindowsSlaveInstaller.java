@@ -142,6 +142,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         xml = xml.replace("@JAVA@", java);
         xml = xml.replace("@VMARGS@", StringUtils.defaultString(vmargs));
         xml = xml.replace("@ARGS@", args);
+        xml = xml.replace("\n","\r\n");
         return xml;
     }
 
