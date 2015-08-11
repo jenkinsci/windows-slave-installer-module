@@ -30,7 +30,7 @@ THE SOFTWARE.
 -->
 <service>
   <id>@ID@</id>
-  <name>Jenkins Slave</name>
+  <name>@ID@</name>
   <description>This service runs a slave for Jenkins continuous integration system.</description>
   <!--
     if you'd like to run Jenkins with a specific version of Java, specify a full path to java.exe.

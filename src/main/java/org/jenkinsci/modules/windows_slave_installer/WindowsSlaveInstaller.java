@@ -2,7 +2,6 @@ package org.jenkinsci.modules.windows_slave_installer;
 
 import com.sun.jna.Native;
 import hudson.Launcher.LocalLauncher;
-import hudson.lifecycle.Messages;
 import hudson.model.TaskListener;
 import hudson.util.StreamTaskListener;
 import hudson.util.jna.DotNet;
@@ -83,7 +82,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
 
         final File dir = params.getStorage().getAbsoluteFile();
         if (!dir.exists())
-            throw new InstallationException(Messages.WindowsSlaveInstaller_RootFsDoesntExist(dir));
+            if (!dir.mkdirs()){
+                throw new InstallationException(Messages.WindowsSlaveInstaller_RootFsCreationFailed(dir));
+            }
 
         final File slaveExe = new File(dir, "jenkins-slave.exe");
         FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe"), slaveExe);
