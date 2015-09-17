@@ -13,6 +13,10 @@
   <name>Windows slave installer</name>
   <description>Adds a GUI option to install the JNLP slave agent as a Windows service</description>
 
+  <properties>
+    <winsw.version>1.18</winsw.version>
+  </properties>
+
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-module.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}-module.git</developerConnection>
@@ -48,7 +52,7 @@
                 <artifactItem>
                   <groupId>com.sun.winsw</groupId>
                   <artifactId>winsw</artifactId>
-                  <version>1.16</version>
+                  <version>${winsw.version}</version>
                   <classifier>bin</classifier>
                   <type>exe</type>
                   <outputDirectory>${project.build.outputDirectory}/org/jenkinsci/modules/windows_slave_installer</outputDirectory>
