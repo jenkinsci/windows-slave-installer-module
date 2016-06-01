@@ -15,7 +15,6 @@
 
   <properties>
     <winsw.version>1.18</winsw.version>
-    <jenkins.version>1.651</jenkins.version>
   </properties>
 
   <scm>
@@ -38,6 +37,9 @@
         <artifactId>maven-hpi-plugin</artifactId>
         <version>1.90</version>
         <extensions>true</extensions>
+        <configuration>
+          <disabledTestInjection>true</disabledTestInjection>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
