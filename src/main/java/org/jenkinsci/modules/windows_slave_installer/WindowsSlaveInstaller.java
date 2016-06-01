@@ -1,6 +1,7 @@
 package org.jenkinsci.modules.windows_slave_installer;
 
 import com.sun.jna.Native;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Launcher.LocalLauncher;
 import hudson.model.TaskListener;
 import hudson.util.StreamTaskListener;
@@ -75,7 +76,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
     }
 
 
-    @Override
+    @Override @SuppressFBWarnings("DM_EXIT")
     public void install(LaunchConfiguration params, Prompter prompter) throws InstallationException, IOException, InterruptedException {
         if(!DotNet.isInstalled(2,0))
             throw new InstallationException(Messages.WindowsSlaveInstaller_DotNetRequired());

@@ -1,5 +1,6 @@
 package org.jenkinsci.modules.windows_slave_installer;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Util;
@@ -27,7 +28,7 @@ public class SlaveExeUpdater extends ComputerListener {
      */
     private volatile String ourCopy;
 
-    @Override
+    @Override @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void onOnline(Computer c, final TaskListener listener) throws IOException, InterruptedException {
         if (!(c instanceof SlaveComputer))  return;
 
