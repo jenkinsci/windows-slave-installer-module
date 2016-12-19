@@ -43,9 +43,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
      * <p>
      * If it fails in a way that indicates the presence of UAC, retry in an UAC compatible manner.
      */
-    static int runElevated(File slaveExe, String command, TaskListener out, File pwd) throws IOException, InterruptedException {
+    static int runElevated(File agentExe, String command, TaskListener out, File pwd) throws IOException, InterruptedException {
         try {
-            return new LocalLauncher(out).launch().cmds(slaveExe, command).stdout(out).pwd(pwd).join();
+            return new LocalLauncher(out).launch().cmds(agentExe, command).stdout(out).pwd(pwd).join();
         } catch (IOException e) {
             if (e.getMessage().contains("CreateProcess") && e.getMessage().contains("=740")) {
                 // fall through
@@ -59,7 +59,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         SHELLEXECUTEINFO sei = new SHELLEXECUTEINFO();
         sei.fMask = SEE_MASK_NOCLOSEPROCESS;
         sei.lpVerb = "runas";
-        sei.lpFile = slaveExe.getAbsolutePath();
+        sei.lpFile = agentExe.getAbsolutePath();
         sei.lpParameters = "/redirect redirect.log "+command;
         sei.lpDirectory = pwd.getAbsolutePath();
         sei.nShow = SW_HIDE;
@@ -87,8 +87,8 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
                 throw new InstallationException(Messages.WindowsSlaveInstaller_RootFsCreationFailed(dir));
             }
 
-        final File slaveExe = new File(dir, "jenkins-slave.exe");
-        FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe"), slaveExe);
+        final File agentExe = new File(dir, "jenkins-slave.exe");
+        FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe"), agentExe);
 
         FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe.config"),
                 new File(dir,"jenkins-slave.exe.config"));
@@ -100,14 +100,14 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         FileUtils.writeStringToFile(new File(dir, "jenkins-slave.xml"),xml,"UTF-8");
 
         // copy slave.jar
-        File dstSlaveJar = new File(dir,"slave.jar").getCanonicalFile();
-        if(!dstSlaveJar.exists()) // perhaps slave.jar is already there?
-            FileUtils.copyFile(params.getJarFile(), dstSlaveJar);
+        File dstAgentJar = new File(dir,"slave.jar").getCanonicalFile();
+        if(!dstAgentJar.exists()) // perhaps slave.jar is already there?
+            FileUtils.copyFile(params.getJarFile(), dstAgentJar);
 
         // install as a service
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         StreamTaskListener task = new StreamTaskListener(baos);
-        int r = runElevated(slaveExe,"install",task,dir);
+        int r = runElevated(agentExe,"install",task,dir);
         if(r!=0)
             throw new InstallationException(baos.toString());
 
@@ -122,7 +122,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
             public void run() {
                 try {
                     StreamTaskListener task = StreamTaskListener.fromStdout();
-                    int r = runElevated(slaveExe,"start",task,dir);
+                    int r = runElevated(agentExe,"start",task,dir);
                     task.getLogger().println(r==0?"Successfully started":"start service failed. Exit code="+r);
                 } catch (IOException e) {
                     e.printStackTrace();
