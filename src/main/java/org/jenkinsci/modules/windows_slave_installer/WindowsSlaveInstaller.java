@@ -26,6 +26,8 @@ import java.io.IOException;
 import static hudson.util.jna.SHELLEXECUTEINFO.*;
 
 /**
+ * Installs agent as a Windows service.
+ * The installer uses <a href="https://github.com/kohsuke/winsw">WinSW</a> as a service wrapper.
  * @author Kohsuke Kawaguchi
  */
 public class WindowsSlaveInstaller extends SlaveInstaller {
