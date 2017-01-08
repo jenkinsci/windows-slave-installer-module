@@ -43,10 +43,10 @@ public class SlaveExeUpdater extends ComputerListener {
                     if (n==null || ch==null)   return null;    // defensive check
 
                     FilePath root = new FilePath(ch, n.getRemoteFS());
-                    FilePath slaveExe = root.child("jenkins-slave.exe");
-                    if (!slaveExe.exists())     return null;    // nothing to update
+                    FilePath agentExe = root.child("jenkins-slave.exe");
+                    if (!agentExe.exists())     return null;    // nothing to update
 
-                    String current = slaveExe.digest();
+                    String current = agentExe.digest();
 
                     URL ourExe = WindowsSlaveInstaller.class.getResource("jenkins-slave.exe");
                     if (ourCopy==null) {
@@ -59,8 +59,8 @@ public class SlaveExeUpdater extends ComputerListener {
                     // This is tricky because the process is running. The trick is to rename the current
                     // file and place a new file in the correct name.
 
-                    FilePath tmp = new FilePath(slaveExe.getChannel(), slaveExe.getRemote()+".new");
-                    FilePath backup = new FilePath(slaveExe.getChannel(), slaveExe.getRemote()+".bak");
+                    FilePath tmp = new FilePath(agentExe.getChannel(), agentExe.getRemote()+".new");
+                    FilePath backup = new FilePath(agentExe.getChannel(), agentExe.getRemote()+".bak");
 
                     if (backup.exists()) {
                         try {
@@ -72,8 +72,8 @@ public class SlaveExeUpdater extends ComputerListener {
                     }
 
                     tmp.copyFrom(ourExe);
-                    slaveExe.renameTo(backup);
-                    tmp.renameTo(slaveExe);
+                    agentExe.renameTo(backup);
+                    tmp.renameTo(agentExe);
                     listener.getLogger().println("Scheduled overwrite of jenkins-slave.exe on the next service startup");
                 } catch (Throwable e) {
                     e.printStackTrace(listener.error("Failed to update jenkins-slave.exe"));
