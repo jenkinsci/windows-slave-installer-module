@@ -14,7 +14,7 @@
   <description>Adds a GUI option to install the JNLP agent as a Windows service</description>
 
   <properties>
-    <winsw.version>2.0.1</winsw.version>
+    <winsw.version>2.0.2</winsw.version>
   </properties>
 
   <scm>
