@@ -51,5 +51,21 @@ THE SOFTWARE.
 
   <onfailure action="restart" />
   
+  <!-- 
+    In the case WinSW gets terminated and leaks the process, we want to abort
+    these runaway JAR processes on startup to prevent "Slave is already connected errors" (JENKINS-28492).
+  -->
+  <extensions>
+    <!-- This is a sample configuration for the RunawayProcessKiller extension. -->
+    <extension enabled="true" 
+               className="winsw.Plugins.RunawayProcessKiller.RunawayProcessKillerExtension"
+               id="killOnStartup">
+      <pidfile>%BASE%\jenkins_agent.pid</pidfile>
+      <stopTimeout>5000</stopTimeout>
+      <stopParentFirst>false</stopParentFirst>
+    </extension>
+  </extensions>
+  
   <!-- See referenced examples for more options -->
+  
 </service>
