@@ -34,7 +34,7 @@ THE SOFTWARE.
 -->
 <service>
   <id>@ID@</id>
-  <name>@ID@</name>
+  <name>Jenkins agent (@ID@)</name>
   <description>This service runs an agent for Jenkins automation server.</description>
   <!--
     if you'd like to run Jenkins with a specific version of Java, specify a full path to java.exe.
