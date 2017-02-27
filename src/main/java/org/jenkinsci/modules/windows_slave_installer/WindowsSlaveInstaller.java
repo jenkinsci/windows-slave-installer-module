@@ -91,11 +91,12 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         }
     }
 
-    @Override @SuppressFBWarnings("DM_EXIT")
+    @Override
     public void install(LaunchConfiguration params, Prompter prompter) throws InstallationException, IOException, InterruptedException {
         install(params, prompter, false);
     }
     
+    @SuppressFBWarnings(value = "DM_EXIT", justification = "Legacy design, but as designed")
     /*package*/ void install(LaunchConfiguration params, Prompter prompter, boolean mock) throws InstallationException, IOException, InterruptedException {
         if(!mock && !DotNet.isInstalled(2,0)) {
             throw new InstallationException(Messages.WindowsSlaveInstaller_DotNetRequired());
@@ -159,6 +160,8 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
                 }
             }
         });
+        
+        // TODO: FindBugs: Move to the outer installation logic?
         System.exit(0);
     }
 
