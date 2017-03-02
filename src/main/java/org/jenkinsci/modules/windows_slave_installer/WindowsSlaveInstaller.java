@@ -250,7 +250,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
             
             final String macroValue;
             if (remotingURL != null) {
-                macroValue = "<download from=\"" + remotingURL.toString() + "\" to=\"%BASE%\\slave.jar\"/>";
+                macroValue = "<!-- <download from=\"" + remotingURL.toString() + "\" to=\"%BASE%\\slave.jar\"/> -->";
             } else {
                 macroValue = "<!-- <download from=\"TODO:jarFile\" to=\"%BASE%\\slave.jar\"/> -->";
             }

@@ -52,11 +52,10 @@ THE SOFTWARE.
   <onfailure action="restart" />
   
   <!--
-    Download the Remoting version provided by the Jenkins master.
+    If uncommented, download the Remoting version provided by the Jenkins master.
     
     NOTE: This option may fail to work correctly (e.g. if Jenkins is located behind HTTPS with untrusted certificate).
-    In such case the old agent version will be used. 
-    You can replace slave.jar manually or to specify another download URL.
+    In such case the old agent version will be used; you can replace slave.jar manually or to specify another download URL.
   -->
   @AGENT_DOWNLOAD_URL@
   
