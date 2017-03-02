@@ -37,7 +37,7 @@
         <artifactId>maven-hpi-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <disabledTestInjection>true</disabledTestInjection>
+          <disabledTestInjection>false</disabledTestInjection>
         </configuration>
       </plugin>
       <plugin>
