@@ -248,15 +248,22 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
                 LOGGER.log(Level.SEVERE, "Failed to retrieve the latest Remoting JAR URL. Auto-download will be disabled", ex);
             }
             
-            final String macroValue;
+            res.put("AGENT_DOWNLOAD_URL", generateDownloadMacroValue(remotingURL));
+            return res;
+        }
+        
+        @Nonnull
+        /**package*/ static String generateDownloadMacroValue(@CheckForNull URL remotingURL) {
+            String macroValue;
             if (remotingURL != null) {
-                macroValue = "<!-- <download from=\"" + remotingURL.toString() + "\" to=\"%BASE%\\slave.jar\"/> -->";
+                macroValue = "<download from=\"" + remotingURL.toString() + "\" to=\"%BASE%\\slave.jar\"/>";
+                if (!"https".equals(remotingURL.getProtocol())) {
+                    macroValue = "<!-- " + macroValue + " -->";
+                }         
             } else {
                 macroValue = "<!-- <download from=\"TODO:jarFile\" to=\"%BASE%\\slave.jar\"/> -->";
             }
-            
-            res.put("AGENT_DOWNLOAD_URL", macroValue);
-            return res;
+            return macroValue;
         }
     }
 }

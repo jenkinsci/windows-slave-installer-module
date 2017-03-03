@@ -27,7 +27,9 @@ package org.jenkinsci.modules.windows_slave_installer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
 import static org.hamcrest.CoreMatchers.*;
 import org.jenkinsci.modules.slave_installer.InstallationException;
@@ -96,6 +98,52 @@ public class WindowsSlaveInstallerTest {
         assertThat("There is unresolved macro", xml, not(containsString("@")));
         assertThat("The JAR download URL has not been resolved correctly", not(containsString("TODO:jarFile")));
         assertThat("The JAR download URL contains the invalid value", xml, containsString("<download from=\"" + launchConfig.getLatestJarURL() + "\""));
+    }
+    
+    @Test
+    @Issue("JENKINS-39237")
+    public void shouldNotDownloadForNonHTTPS() throws Exception {
+        assertDownloadSettingDisabled("http://myserver.com/remoting.jar");
+        assertDownloadSettingDisabled("ftp://myserver.com/remoting.jar");
+        assertDownloadSettingDisabled("file:/my/files/remoting.jar");
+    }
+    
+    @Test
+    @Issue("JENKINS-39237")
+    public void shouldDownloadForHTTPS() throws Exception {
+        String url = "https://myserver.com/remoting.jar";
+        String macroValue = downloadMacroFor(url);
+        assertXMLNotCommented(macroValue);
+        assertThat("The download macro does not reference the link", macroValue, containsString(url));
+    }
+    
+    @Test
+    @Issue("JENKINS-39237")
+    public void shouldNotFailForNull() throws Exception {
+        String macroValue = downloadMacroFor(null);
+        assertXMLCommented(macroValue);
+        assertThat("The download macro does not contain TODO", macroValue, containsString("TODO"));
+    }
+    
+    private static void assertDownloadSettingDisabled(String url) throws MalformedURLException {
+        String macroValue = downloadMacroFor(url);
+        assertXMLCommented(macroValue);
+        assertThat("The download macro does not reference the link", macroValue, containsString(url));
+    }
+    
+    private static String downloadMacroFor(@CheckForNull String url) throws MalformedURLException  {
+        return WindowsSlaveInstaller.AgentURLMacroProvider.generateDownloadMacroValue
+            (url != null ? new URL(url) : null);
+    }
+    
+    private static void assertXMLCommented(String str) {
+        assertThat("No starting comment definition", str, startsWith("<!--"));
+        assertThat("No end comment definition", str, endsWith("-->"));
+    }
+    
+    private static void assertXMLNotCommented(String str) {
+        assertThat("Found the comment start definition", str, not(startsWith("<!--")));
+        assertThat("Found the comment end definition", str, not(endsWith("-->")));
     }
     
     private static void verifyAgentDirectory(File dir) throws AssertionError {
