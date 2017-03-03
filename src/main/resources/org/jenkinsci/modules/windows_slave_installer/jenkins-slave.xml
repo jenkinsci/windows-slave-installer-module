@@ -51,6 +51,14 @@ THE SOFTWARE.
 
   <onfailure action="restart" />
   
+  <!--
+    If uncommented, download the Remoting version provided by the Jenkins master.
+    Enabling for HTTP implies security risks (e.g. replacement of JAR via DNS poisoning). Use on your own risk.
+    NOTE: This option may fail to work correctly (e.g. if Jenkins is located behind HTTPS with untrusted certificate).
+    In such case the old agent version will be used; you can replace slave.jar manually or to specify another download URL.
+  -->
+  @AGENT_DOWNLOAD_URL@
+  
   <!-- 
     In the case WinSW gets terminated and leaks the process, we want to abort
     these runaway JAR processes on startup to prevent "Slave is already connected errors" (JENKINS-28492).

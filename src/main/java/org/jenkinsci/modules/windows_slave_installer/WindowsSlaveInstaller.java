@@ -24,6 +24,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import static hudson.util.jna.SHELLEXECUTEINFO.*;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 /**
  * Installs agent as a Windows service.
@@ -31,6 +42,9 @@ import static hudson.util.jna.SHELLEXECUTEINFO.*;
  * @author Kohsuke Kawaguchi
  */
 public class WindowsSlaveInstaller extends SlaveInstaller {
+    
+    private final static Logger LOGGER = Logger.getLogger(WindowsSlaveInstaller.class.getName());
+    
     public WindowsSlaveInstaller() {
     }
 
@@ -77,17 +91,23 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         }
     }
 
-
-    @Override @SuppressFBWarnings("DM_EXIT")
+    @Override
     public void install(LaunchConfiguration params, Prompter prompter) throws InstallationException, IOException, InterruptedException {
-        if(!DotNet.isInstalled(2,0))
+        install(params, prompter, false);
+    }
+    
+    @SuppressFBWarnings(value = "DM_EXIT", justification = "Legacy design, but as designed")
+    /*package*/ void install(LaunchConfiguration params, Prompter prompter, boolean mock) throws InstallationException, IOException, InterruptedException {
+        if(!mock && !DotNet.isInstalled(2,0)) {
             throw new InstallationException(Messages.WindowsSlaveInstaller_DotNetRequired());
-
+        }
+        
         final File dir = params.getStorage().getAbsoluteFile();
         if (!dir.exists())
             if (!dir.mkdirs()){
                 throw new InstallationException(Messages.WindowsSlaveInstaller_RootFsCreationFailed(dir));
             }
+        params.getLatestJarURL();
 
         final File agentExe = new File(dir, "jenkins-slave.exe");
         FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe"), agentExe);
@@ -98,7 +118,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         // write out the descriptor
         String xml = generateSlaveXml(
                 generateServiceId(dir.getPath()),
-                System.getProperty("java.home")+"\\bin\\java.exe", null, params.buildRunnerArguments().toStringWithQuote());
+                System.getProperty("java.home")+"\\bin\\java.exe", null, 
+                params.buildRunnerArguments().toStringWithQuote(), 
+                Arrays.asList(new MacroValueProvider[] {new AgentURLMacroProvider(params)}));
         FileUtils.writeStringToFile(new File(dir, "jenkins-slave.xml"),xml,"UTF-8");
 
         // copy slave.jar
@@ -106,6 +128,11 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         if(!dstAgentJar.exists()) // perhaps slave.jar is already there?
             FileUtils.copyFile(params.getJarFile(), dstAgentJar);
 
+        if (mock) {
+            // If the installation is mocked, do not really try to install it
+            return;
+        }
+        
         // install as a service
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         StreamTaskListener task = new StreamTaskListener(baos);
@@ -133,6 +160,8 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
                 }
             }
         });
+        
+        // TODO: FindBugs: Move to the outer installation logic?
         System.exit(0);
     }
 
@@ -140,15 +169,101 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         return "jenkinsslave-"+slaveRoot.replace(':','_').replace('\\','_').replace('/','_');
     }
 
+    /**
+     * @deprecated Use {@link #generateSlaveXml(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map)}
+     */
+    @Deprecated
+    @Restricted(NoExternalUse.class)
     public static String generateSlaveXml(String id, String java, String vmargs, String args) throws IOException {
+        return generateSlaveXml(id, java, vmargs, args, Collections.<String, String>emptyMap());
+    }
+    
+    /**
+     * Generates WinSW configuration for the agent.
+     * @param id Service Id
+     * @param java Path to Java
+     * @param vmargs JVM args arguments to be passed
+     * @param args slave.jar arguments to be passed
+     * @param extraMacroValues Additional macro values to be injected.
+     * @return Generated WinSW configuration file.
+     * @throws IOException The file cannot be generated
+     * @since TODO
+     */
+    @Restricted(NoExternalUse.class)
+    public static String generateSlaveXml(String id, String java, String vmargs, String args, @Nonnull Map<String, String> extraMacroValues) throws IOException {
+        // Just a legacy behavior for the obsolete installer
         String xml = IOUtils.toString(WindowsSlaveInstaller.class.getResourceAsStream("jenkins-slave.xml"), "UTF-8");
         xml = xml.replace("@ID@", id);
         xml = xml.replace("@JAVA@", java);
         xml = xml.replace("@VMARGS@", StringUtils.defaultString(vmargs));
         xml = xml.replace("@ARGS@", args);
         xml = xml.replace("\n","\r\n");
+        
+        for (Map.Entry<String, String> entry : extraMacroValues.entrySet()) {
+            xml = xml.replace("@" + entry.getKey() + "@", entry.getValue());
+        }
         return xml;
+    }
+      
+    /*package*/ static String generateSlaveXml(String id, String java, @CheckForNull String vmargs, 
+                @Nonnull String args, @Nonnull Iterable<MacroValueProvider> providers
+            ) throws IOException {
+        Map<String, String> macroValues = new TreeMap<>();
+        for (MacroValueProvider provider : providers) {
+            //TODO: fail in the case of duplicated entries?
+            macroValues.putAll(provider.getMacroValues());
+        }
+        
+        return generateSlaveXml(id, java, vmargs, args, macroValues);
     }
 
     private static final long serialVersionUID = 1L;
+    
+    /**
+     * Macro provider implementation for the internal use.
+     */
+    @Restricted(NoExternalUse.class)
+    /*package*/ static abstract class MacroValueProvider {
+       
+        @Nonnull
+        public abstract Map<String, String> getMacroValues();
+    }
+    
+    /*package*/ static class AgentURLMacroProvider extends MacroValueProvider {
+
+        @Nonnull
+        private final LaunchConfiguration launchConfiguration;
+        
+        public AgentURLMacroProvider(@Nonnull LaunchConfiguration launchConfig) {
+            this.launchConfiguration = launchConfig;
+        }
+
+        @Override
+        public Map<String, String> getMacroValues() {
+            Map<String, String> res = new TreeMap<>();
+            URL remotingURL = null;
+            try {
+                remotingURL = launchConfiguration.getLatestJarURL();
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, "Failed to retrieve the latest Remoting JAR URL. Auto-download will be disabled", ex);
+            }
+            
+            res.put("AGENT_DOWNLOAD_URL", generateDownloadMacroValue(remotingURL));
+            return res;
+        }
+        
+        @Nonnull
+        /**package*/ static String generateDownloadMacroValue(@CheckForNull URL remotingURL) {
+            String macroValue;
+            if (remotingURL != null) {
+                macroValue = "<download from=\"" + remotingURL.toString() + "\" to=\"%BASE%\\slave.jar\"/>";
+                if (!"https".equals(remotingURL.getProtocol())) {
+                    macroValue = "<!-- " + macroValue + " -->";
+                }         
+            } else {
+                macroValue = "<!-- <download from=\"TODO:jarFile\" to=\"%BASE%\\slave.jar\"/> -->";
+            }
+            return macroValue;
+        }
+    }
 }
