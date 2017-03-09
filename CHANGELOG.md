@@ -39,6 +39,7 @@ There are many fixes around configuration options and process termination.
 
 
 Upgrade notes:
+* See the upgade guidelines in [Readme](./README.md)
 * [Runaway Process Killer](https://github.com/kohsuke/winsw/blob/master/doc/extensions/runawayProcessKiller.md) needs to be manually enabled on old agent installations, which have been created before the upgrade.
 * Agent JAR file (`slave.jar` for default installations) needs to be manually enabled on old agent installations.
 
