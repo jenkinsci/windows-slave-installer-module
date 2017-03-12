@@ -13,7 +13,7 @@ Release date: (Mar 03, 2017) => Jenkins `TODO`
 This is a major release, which integrates support of the new Windows Service Wrapper (WinSW), which includes many improvements and bugfixes.
 See the upgrade guidelines below.
 
-Improvements:
+### Improvements
 
 * Upgrade Windows Service Wrapper from `1.18` to `2.0.2`.
 [Full changelog](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md).
@@ -30,7 +30,7 @@ Modify the default Agent service display name prefix to make names human-readabl
 Rename `slave` to `agent` in Javadoc and WebUI in order to be compliant with Jenkins 2 terminology.
  - Download endpoints (`/jnlpJars/slave.jar`) and filesystem names (e.g. `jenkins-slave.exe`) have not been modified due to the compatibility reasons.
 
-Fixed issues:
+### Fixed issues
 * [JENKINS-22692](https://issues.jenkins-ci.org/browse/JENKINS-22692) - 
 Agent connection reset issues when WinSW gets terminated due to the system shutdown.
 * Other stability and performance fixes integrated from `1.18` to `2.0.2`.
@@ -38,7 +38,7 @@ There are many fixes around configuration options and process termination.
 [Full changelog](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md).
 
 
-Upgrade notes:
+### Upgrade notes (1.7)
 * See the upgade guidelines in [Readme](./README.md)
 * [Runaway Process Killer](https://github.com/kohsuke/winsw/blob/master/doc/extensions/runawayProcessKiller.md) needs to be manually enabled on old agent installations, which have been created before the upgrade.
 * Agent JAR file (`slave.jar` for default installations) needs to be manually enabled on old agent installations.
