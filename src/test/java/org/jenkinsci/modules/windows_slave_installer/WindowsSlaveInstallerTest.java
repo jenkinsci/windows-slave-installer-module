@@ -29,12 +29,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
 import static org.hamcrest.CoreMatchers.*;
 import org.jenkinsci.modules.slave_installer.InstallationException;
 import org.jenkinsci.modules.slave_installer.LaunchConfiguration;
 import org.jenkinsci.modules.slave_installer.Prompter;
+import org.jenkinsci.modules.windows_slave_installer.WindowsSlaveInstaller.AgentURLMacroProvider;
 import org.junit.Assert;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
@@ -77,6 +80,34 @@ public class WindowsSlaveInstallerTest {
                 return "unspecified";
             }
         };
+    }
+    
+    @Test
+    @Issue("JENKINS-42745")
+    public void shouldGenerateValidConfigWithOldAPI() throws Exception {
+        @SuppressWarnings("deprecation")
+        String xml = WindowsSlaveInstaller.generateSlaveXml("serviceid", "myjava", "", "");
+        assertThat("There is unresolved macro", xml, not(containsString("@")));
+    }
+    
+    @Test
+    @Issue("JENKINS-42745")
+    public void shouldThrowUnresolveMacro() throws Exception {
+        // Create a nested macro definition, which won't be resolved
+        Map<String,String> macroValues = new HashMap<>();
+        macroValues.put(AgentURLMacroProvider.MACRO_NAME, "Depends on @" + AgentURLMacroProvider.MACRO_NAME + "@");
+        
+        // Try to resolve
+        try {
+            String xml = WindowsSlaveInstaller.generateSlaveXml("serviceid", "myjava", "", "", macroValues);
+        } catch (IOException ex) {
+            assertThat("Exception message does not mention unresolved macros", 
+                    ex.getMessage(), containsString("Unresolved macros in the XML file: "));
+            assertThat("Exception message does not reference the macro name", 
+                    ex.getMessage(), containsString(AgentURLMacroProvider.MACRO_NAME));
+            return;
+        }
+        Assert.fail("Expected the Unresolved macro exception");
     }
     
     @Test

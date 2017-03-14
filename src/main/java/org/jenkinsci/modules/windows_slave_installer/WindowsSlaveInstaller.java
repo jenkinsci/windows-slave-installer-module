@@ -26,9 +26,14 @@ import java.io.IOException;
 import static hudson.util.jna.SHELLEXECUTEINFO.*;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
@@ -44,6 +49,13 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
 public class WindowsSlaveInstaller extends SlaveInstaller {
     
     private final static Logger LOGGER = Logger.getLogger(WindowsSlaveInstaller.class.getName());
+    
+    /**
+     * Lists the new required macros, which has been added to the pattern since 1.6.
+     * All of these macros are expected to have a default value.
+     */
+    private static final Set<String> ADDITIONAL_REQUIRED_MACROS = new TreeSet<>(
+        Arrays.asList(AgentURLMacroProvider.MACRO_NAME));
     
     public WindowsSlaveInstaller() {
     }
@@ -173,23 +185,27 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
      * @deprecated Use {@link #generateSlaveXml(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map)}
      */
     @Deprecated
-    @Restricted(NoExternalUse.class)
     public static String generateSlaveXml(String id, String java, String vmargs, String args) throws IOException {
         return generateSlaveXml(id, java, vmargs, args, Collections.<String, String>emptyMap());
     }
     
     /**
      * Generates WinSW configuration for the agent.
+     * This method takes a template from the resources and injects macro values there.
+     * Macro values can be contributed by {@code extraMacroValues} or by {@link MacroValueProvider}s.
      * @param id Service Id
      * @param java Path to Java
      * @param vmargs JVM args arguments to be passed
      * @param args slave.jar arguments to be passed
      * @param extraMacroValues Additional macro values to be injected.
+     *                         The list of required macros is provided in {@link #ADDITIONAL_REQUIRED_MACROS}.
+     *                         If the macro value is not provided, the implementation will look up for the default value in
+     *                         available {@link MacroValueProvider}s.
+     *                         
      * @return Generated WinSW configuration file.
-     * @throws IOException The file cannot be generated
+     * @throws IOException The file cannot be generated or if not all macro variables can be resolved
      * @since TODO
      */
-    @Restricted(NoExternalUse.class)
     public static String generateSlaveXml(String id, String java, String vmargs, String args, @Nonnull Map<String, String> extraMacroValues) throws IOException {
         // Just a legacy behavior for the obsolete installer
         String xml = IOUtils.toString(WindowsSlaveInstaller.class.getResourceAsStream("jenkins-slave.xml"), "UTF-8");
@@ -199,9 +215,36 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         xml = xml.replace("@ARGS@", args);
         xml = xml.replace("\n","\r\n");
         
-        for (Map.Entry<String, String> entry : extraMacroValues.entrySet()) {
+        // Resolve missing macros to retain compatibility with old API
+        Map <String, String> toResolve = new HashMap<>(extraMacroValues);
+        Collection<MacroValueProvider> defaultProviders = MacroValueProvider.allDefaultProviders();
+        for (String macroName : ADDITIONAL_REQUIRED_MACROS) {
+            if (!extraMacroValues.containsKey(macroName)) {
+                for (MacroValueProvider provider : defaultProviders) {
+                    String defaultValue = provider.getDefaulValue(macroName);
+                    if (defaultValue != null) {
+                        toResolve.put(macroName, defaultValue);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        for (Map.Entry<String, String> entry : toResolve.entrySet()) {
             xml = xml.replace("@" + entry.getKey() + "@", entry.getValue());
         }
+        
+        if (xml.contains("@")) {
+            Set<String> unresolvedMacros = new HashSet<>();
+            for (String macroName : ADDITIONAL_REQUIRED_MACROS) {
+                if (xml.contains("@" + macroName + "@")) {
+                    unresolvedMacros.add(macroName);
+                } 
+            }
+            // If there is any unknown macro, it will be caught by tests.
+            throw new IOException("Unresolved macros in the XML file: " + String.join(",", unresolvedMacros));
+        }
+        
         return xml;
     }
       
@@ -221,34 +264,53 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
     
     /**
      * Macro provider implementation for the internal use.
+     * Currently the implementation supports only one macro for the provider.
      */
     @Restricted(NoExternalUse.class)
     /*package*/ static abstract class MacroValueProvider {
        
         @Nonnull
         public abstract Map<String, String> getMacroValues();
+        
+        @Nonnull
+        public abstract Set<String> getMacroNames();
+        
+        @CheckForNull
+        public abstract String getDefaulValue(@Nonnull String macroName);
+        
+        static final Collection<MacroValueProvider> allDefaultProviders() {
+            return Arrays.<MacroValueProvider>asList(new AgentURLMacroProvider(null));
+        }
     }
     
     /*package*/ static class AgentURLMacroProvider extends MacroValueProvider {
 
-        @Nonnull
+        static final String MACRO_NAME = "AGENT_DOWNLOAD_URL";
+        static final String DEFAULT_DISABLED_VALUE = "<!-- <download from=\"TODO:jarFile\" to=\"%BASE%\\slave.jar\"/> -->";
+        
+        private static final Set<String> MACRO_NAMES = new TreeSet<>(Arrays.asList(MACRO_NAME));
+        
+        @CheckForNull
         private final LaunchConfiguration launchConfiguration;
         
-        public AgentURLMacroProvider(@Nonnull LaunchConfiguration launchConfig) {
+        public AgentURLMacroProvider(@CheckForNull LaunchConfiguration launchConfig) {
             this.launchConfiguration = launchConfig;
         }
 
         @Override
         public Map<String, String> getMacroValues() {
             Map<String, String> res = new TreeMap<>();
+            
             URL remotingURL = null;
-            try {
-                remotingURL = launchConfiguration.getLatestJarURL();
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, "Failed to retrieve the latest Remoting JAR URL. Auto-download will be disabled", ex);
+            if (launchConfiguration != null) {
+                try {
+                    remotingURL = launchConfiguration.getLatestJarURL();
+                } catch (IOException ex) {
+                    LOGGER.log(Level.SEVERE, "Failed to retrieve the latest Remoting JAR URL. Auto-download will be disabled", ex);
+                }
             }
             
-            res.put("AGENT_DOWNLOAD_URL", generateDownloadMacroValue(remotingURL));
+            res.put(MACRO_NAME, generateDownloadMacroValue(remotingURL));
             return res;
         }
         
@@ -261,9 +323,23 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
                     macroValue = "<!-- " + macroValue + " -->";
                 }         
             } else {
-                macroValue = "<!-- <download from=\"TODO:jarFile\" to=\"%BASE%\\slave.jar\"/> -->";
+                macroValue = DEFAULT_DISABLED_VALUE;
             }
             return macroValue;
+        }
+
+        @Override
+        public Set<String> getMacroNames() {
+            return Collections.unmodifiableSet(MACRO_NAMES);
+        }
+
+        @Override
+        public String getDefaulValue(String macroName) {
+            if (MACRO_NAMES.contains(macroName)) {
+                // Fine since we keep one macro
+                return DEFAULT_DISABLED_VALUE;
+            }
+            return null;
         }
     }
 }
