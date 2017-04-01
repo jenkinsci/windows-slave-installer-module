@@ -48,14 +48,14 @@ Windows Agent Installer module may be able to automatically upgrade the agent in
 
 #### Automatic upgrade
 
-0. Upgrade Jenkins to the version, which provides this module
-0. Jenkins is expected to automatically upgrade `jenkins-slave.exe` executables if... 
-  * The agent is **connected** to the Jenkins master
-    - If the agent is not connected, the update will be postponed till the agent connects to the master
-  * WinSW executable is located in `REMOTE_ROOT_DIR/jenkins-slave.exe` and writable by the 
-  * WinSW executable is writable as well as `REMOTE_ROOT_DIR/jenkins-slave.exe.new` and `REMOTE_ROOT_DIR/jenkins-slave.exe.bak` files
-0. If the upgrade happens, you should be able to see the message in the `Agent log` in the Jenkins Web UI
-0. Once upgrade is done, the changes will be applied on the next Windows service restart
+1. Upgrade Jenkins to the version, which provides this module
+2. Jenkins is expected to automatically upgrade `jenkins-slave.exe` executables if... 
+ * The agent is **connected** to the Jenkins master
+  * If the agent is not connected, the update will be postponed till the agent connects to the master
+ * WinSW executable is located in `REMOTE_ROOT_DIR/jenkins-slave.exe` and writable by the 
+ * WinSW executable is writable as well as `REMOTE_ROOT_DIR/jenkins-slave.exe.new` and `REMOTE_ROOT_DIR/jenkins-slave.exe.bak` files
+3. If the upgrade happens, you should be able to see the message in the `Agent log` in the Jenkins Web UI
+4. Once upgrade is done, the changes will be applied on the next Windows service restart
 
 #### Manual upgrade
 
@@ -65,12 +65,12 @@ Please note that Jenkins master **may override** the WinSW executable
 if it is located in `REMOTE_ROOT_DIR/jenkins-slave.exe`.
 It possible to disable the automatic upgrade only by using another path or by making the executable non-writable by the Windows agent.
 
-0. Download the new WinSW release from [GitHub Releases](https://github.com/kohsuke/winsw/releases) or [NuGet](https://www.nuget.org/packages/WinSW/).
-  * Depending on the .NET Framework version in your system, 
+1. Download the new WinSW release from [GitHub Releases](https://github.com/kohsuke/winsw/releases) or [NuGet](https://www.nuget.org/packages/WinSW/).
+ * Depending on the .NET Framework version in your system, 
   you can use `WinSW.NET2.exe` or `WinSW.NET4.exe` executable.
-  * If you need to run the `WinSW.NET2.exe` executable on .NET 4 or above, 
+ * If you need to run the `WinSW.NET2.exe` executable on .NET 4 or above, 
   see [this guide](https://github.com/kohsuke/winsw/blob/master/doc/installation.md#making-winsw-1x-compatible-with-net-runtime-40).
-0. Replace the WinSW executable on your agent machines by the new version.
+2. Replace the WinSW executable on your agent machines by the new version.
 
 #### Upgrading agent configuration
 
