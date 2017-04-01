@@ -6,9 +6,18 @@ Below you can view changelogs for the trunk version of the Windows Agent Install
 This file also provides links to Jenkins versions, which bundle the released versions.
 See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
+## 1.8 
+
+Release date: (Apr 01, 2017) => Jenkins `TODO`
+
+* [JENKINS-42744](https://issues.jenkins-ci.org/browse/JENKINS-42744) -
+Update to [Windows Service Wrapper 2.0.3](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md#203)
+to prevent conversion of environment variables to lowercase in the agent executable. 
+(regression in `1.7` and Jenkins `2.50`)
+
 ## 1.7
 
-Release date: (Mar 03, 2017) => Jenkins `TODO`
+Release date: (Mar 03, 2017) => Jenkins 2.50
 
 This is a major release, which integrates support of the new Windows Service Wrapper (WinSW), which includes many improvements and bugfixes.
 See the upgrade guidelines below.
