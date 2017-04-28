@@ -98,9 +98,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         try {
             return Kernel32Utils.waitForExitProcess(sei.hProcess);
         } finally {
-            FileInputStream fin = new FileInputStream(new File(pwd,"redirect.log"));
-            IOUtils.copy(fin,out.getLogger());
-            fin.close();
+            try (FileInputStream fin = new FileInputStream(new File(pwd, "redirect.log"))) {
+                IOUtils.copy(fin,out.getLogger());
+            }
         }
     }
 
