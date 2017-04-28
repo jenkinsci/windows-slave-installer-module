@@ -242,7 +242,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
                 } 
             }
             // If there is any unknown macro, it will be caught by tests.
-            throw new IOException("Unresolved macros in the XML file: " + String.join(",", unresolvedMacros));
+            throw new IOException("Unresolved macros in the XML file: " + StringUtils.join(unresolvedMacros, ","));
         }
         
         return xml;
