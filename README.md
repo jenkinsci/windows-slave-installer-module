@@ -52,10 +52,21 @@ Windows Agent Installer module may be able to automatically upgrade the agent in
 2. Jenkins is expected to automatically upgrade `jenkins-slave.exe` executables if... 
  * The agent is **connected** to the Jenkins master
   * If the agent is not connected, the update will be postponed till the agent connects to the master
- * WinSW executable is located in `REMOTE_ROOT_DIR/jenkins-slave.exe` and writable by the 
+ * WinSW executable is located in `REMOTE_ROOT_DIR/jenkins-slave.exe` and writable by the agent 
  * WinSW executable is writable as well as `REMOTE_ROOT_DIR/jenkins-slave.exe.new` and `REMOTE_ROOT_DIR/jenkins-slave.exe.bak` files
-3. If the upgrade happens, you should be able to see the message in the `Agent log` in the Jenkins Web UI
+3. If the upgrade happens, you should be able to see the message in the `Agent log` in Jenkins Web UI
 4. Once upgrade is done, the changes will be applied on the next Windows service restart
+
+#### Disabling Automatic upgrade
+
+In some cases Jenkins administrators may want to update WinSW to a version higher
+than the version provided by this module.
+By default it is not possible if the executable is named as `jenkins-slave.exe`, 
+because the module performs automatic update.
+
+Starting from version `2.9`, it is possible to disable such automatic upgrades by setting
+the `org.jenkinsci.modules.windows_slave_installer.disableAutoUpdate` System Property
+to `true`.
 
 #### Manual upgrade
 
