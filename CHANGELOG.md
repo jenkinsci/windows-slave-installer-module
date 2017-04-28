@@ -15,6 +15,10 @@ Update to [Windows Service Wrapper 2.1.0](https://github.com/kohsuke/winsw/blob/
 * [JENKINS-42745](https://issues.jenkins-ci.org/browse/JENKINS-42745) -
 Restore compatibility of the `WindowsSlaveInstaller#generateSlaveXml()` method.
 Formally it is a regression in `1.7`, but there is no known usages of this API.
+* [JENKINS-43930](https://issues.jenkins-ci.org/browse/JENKINS-43930) -
+Prevent fatal file descriptor leak when agent service installer fails to read data from the service `startup.log`.
+* [PR #14](https://github.com/jenkinsci/windows-slave-installer-module/pull/14) -
+Improve logging for restart to the service after the installation completion.
 
 The new features will not be enabled by default in service configuration files, but they can be configured manually.
 
