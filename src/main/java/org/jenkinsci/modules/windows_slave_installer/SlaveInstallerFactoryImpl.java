@@ -1,5 +1,6 @@
 package org.jenkinsci.modules.windows_slave_installer;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.remoting.Channel;
 import jenkins.security.MasterToSlaveCallable;
@@ -26,7 +27,9 @@ public class SlaveInstallerFactoryImpl extends SlaveInstallerFactory {
         return null;
     }
 
+    @SuppressFBWarnings(value = "SE_NO_SERIALVERSIONID", justification = "Remoting does not need it")
     private static final class IsWindows extends MasterToSlaveCallable<Boolean,IOException> {
+        @Override
         public Boolean call() throws IOException {
             return File.pathSeparatorChar==';';
         }
