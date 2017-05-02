@@ -3,6 +3,7 @@ package org.jenkinsci.modules.windows_slave_installer;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.FilePath;
+import hudson.RestrictedSince;
 import hudson.Util;
 import hudson.model.Computer;
 import hudson.model.Slave;
@@ -15,21 +16,35 @@ import jenkins.model.Jenkins.MasterComputer;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.Callable;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 /**
- * Overwrite <tt>jenkins-slave.exe</tt> by new copy
- *
+ * Overwrite <tt>jenkins-slave.exe</tt> by new copy.
+ * 
  * @author Kohsuke Kawaguchi
  */
 @Extension
+@Restricted(NoExternalUse.class)
+@RestrictedSince("1.9")
 public class SlaveExeUpdater extends ComputerListener {
     /**
      * MD5 checksum of jenkins-slave.exe in our resource
      */
     private volatile String ourCopy;
 
+    /**
+     * Disables automatic update of Windows Service Wrapper on agents.
+     * This option may be useful if this executable is being managed outside Jenkins.
+     * The system property needs to be set up for master only.
+     * @since 1.9
+     */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Should be accessible to System Grrovy Scripts")
+    static boolean DISABLE_AUTOMATIC_UPDATE = Boolean.getBoolean("org.jenkinsci.modules.windows_slave_installer.disableAutoUpdate");
+    
     @Override @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void onOnline(Computer c, final TaskListener listener) throws IOException, InterruptedException {
+        if (DISABLE_AUTOMATIC_UPDATE) return;
         if (!(c instanceof SlaveComputer))  return;
 
         final SlaveComputer sc = (SlaveComputer) c;
