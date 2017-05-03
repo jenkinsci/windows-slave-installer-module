@@ -38,6 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import static org.jenkinsci.modules.windows_slave_installer.WindowsSlaveInstaller.runElevated;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
@@ -97,9 +98,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         try {
             return Kernel32Utils.waitForExitProcess(sei.hProcess);
         } finally {
-            FileInputStream fin = new FileInputStream(new File(pwd,"redirect.log"));
-            IOUtils.copy(fin,out.getLogger());
-            fin.close();
+            try (FileInputStream fin = new FileInputStream(new File(pwd, "redirect.log"))) {
+                IOUtils.copy(fin,out.getLogger());
+            }
         }
     }
 
@@ -128,8 +129,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
                 new File(dir,"jenkins-slave.exe.config"));
 
         // write out the descriptor
+        final String serviceId = generateServiceId(dir.getPath());
         String xml = generateSlaveXml(
-                generateServiceId(dir.getPath()),
+                serviceId,
                 System.getProperty("java.home")+"\\bin\\java.exe", null, 
                 params.buildRunnerArguments().toStringWithQuote(), 
                 Arrays.asList(new MacroValueProvider[] {new AgentURLMacroProvider(params)}));
@@ -159,19 +161,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
 //        if(r!=JOptionPane.OK_OPTION)    return;
 
         // let the service start after we close our connection, to avoid conflicts
-        Runtime.getRuntime().addShutdownHook(new Thread("service starter") {
-            public void run() {
-                try {
-                    StreamTaskListener task = StreamTaskListener.fromStdout();
-                    int r = runElevated(agentExe,"start",task,dir);
-                    task.getLogger().println(r==0?"Successfully started":"start service failed. Exit code="+r);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new ServiceStarterThread(agentExe, dir, serviceId));
         
         // TODO: FindBugs: Move to the outer installation logic?
         System.exit(0);
@@ -242,7 +232,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
                 } 
             }
             // If there is any unknown macro, it will be caught by tests.
-            throw new IOException("Unresolved macros in the XML file: " + String.join(",", unresolvedMacros));
+            throw new IOException("Unresolved macros in the XML file: " + StringUtils.join(unresolvedMacros, ","));
         }
         
         return xml;
@@ -280,6 +270,32 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         
         static final Collection<MacroValueProvider> allDefaultProviders() {
             return Arrays.<MacroValueProvider>asList(new AgentURLMacroProvider(null));
+        }
+    }
+    
+    /*package*/ static class ServiceStarterThread extends Thread {
+
+        private final File agentExe;
+        private final File rootDir;
+        private final String serviceId;
+
+        public ServiceStarterThread(@Nonnull File agentExe, @Nonnull File rootDir, @Nonnull String serviceId) {
+            super("Service Starter for " + serviceId);
+            this.agentExe = agentExe;
+            this.rootDir = rootDir;
+            this.serviceId = serviceId;
+        }
+
+        @Override
+        public void run() {
+            try {
+                StreamTaskListener task = StreamTaskListener.fromStdout();
+                int r = runElevated(agentExe, "start", task, rootDir);
+                task.getLogger().println(r == 0 ? "Successfully started" : "Start service failed. Exit code=" + r);
+            } catch (IOException | InterruptedException ex) {
+                // Level is severe, because the process won't be recovered in the service mode
+                LOGGER.log(Level.SEVERE, "Failed to start the service with id=" + serviceId, ex);
+            }
         }
     }
     

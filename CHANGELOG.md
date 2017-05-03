@@ -8,10 +8,17 @@ See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
 ## 1.9
 
-Release date: (Apr 23, 2017) => Jenkins `TODO`
+Release date: (Apr 28, 2017) => Jenkins `TODO`
 
 * [JENKINS-43737](https://issues.jenkins-ci.org/browse/JENKINS-43737) -
-Update to [Windows Service Wrapper 2.1.0](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md#210) to support new features: `<download>` command with authentication and/or fail on error, Delayed Automatic Start mode.
+Update to [Windows Service Wrapper 2.1.0](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md#210) to support new features: `<download>` command with authentication, flag for startup failure on `<download>` error, _Delayed Automatic Start_ mode.
+* [JENKINS-42745](https://issues.jenkins-ci.org/browse/JENKINS-42745) -
+Restore compatibility of the `WindowsSlaveInstaller#generateSlaveXml()` method.
+Formally it is a regression in `1.7`, but there is no known usages of this API.
+* [JENKINS-43930](https://issues.jenkins-ci.org/browse/JENKINS-43930) -
+Prevent fatal file descriptor leak when agent service installer fails to read data from the service `startup.log`.
+* [PR #14](https://github.com/jenkinsci/windows-slave-installer-module/pull/14) -
+Improve logging for restart to the service after the installation completion.
 
 The new features will not be enabled by default in service configuration files, but they can be configured manually.
 
