@@ -8,10 +8,14 @@ See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
 ## 1.9
 
-Release date: (Apr 28, 2017) => Jenkins `TODO`
+Release date: (May 03, 2017) => Jenkins `TODO`
 
 * [JENKINS-43737](https://issues.jenkins-ci.org/browse/JENKINS-43737) -
 Update to [Windows Service Wrapper 2.1.0](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md#210) to support new features: `<download>` command with authentication, flag for startup failure on `<download>` error, _Delayed Automatic Start_ mode.
+* [JENKINS-43603](https://issues.jenkins-ci.org/browse/JENKINS-43603) -
+Add System Property, which allows disabling WinSW automatic upgrade on agents.
+Property name - `org.jenkinsci.modules.windows_slave_installer.disableAutoUpdate`, type - boolean. 
+[More info](README.md#disabling-automatic-upgrade).
 * [JENKINS-42745](https://issues.jenkins-ci.org/browse/JENKINS-42745) -
 Restore compatibility of the `WindowsSlaveInstaller#generateSlaveXml()` method.
 Formally it is a regression in `1.7`, but there is no known usages of this API.
