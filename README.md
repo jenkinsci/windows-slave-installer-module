@@ -64,7 +64,7 @@ than the version provided by this module.
 By default it is not possible if the executable is named as `jenkins-slave.exe`, 
 because the module performs automatic update.
 
-Starting from version `2.9`, it is possible to disable such automatic upgrades by setting
+Starting from version `2.9` ([Jenkins 2.60](https://jenkins.io/changelog/#v2.60)), it is possible to disable such automatic upgrades by setting
 the `org.jenkinsci.modules.windows_slave_installer.disableAutoUpdate` System Property
 to `true`.
 
