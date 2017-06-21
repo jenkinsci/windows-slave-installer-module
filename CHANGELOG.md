@@ -8,7 +8,7 @@ See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
 ## 1.9
 
-Release date: (May 03, 2017) => Jenkins `TODO`
+Release date: (May 03, 2017) => Jenkins 2.60
 
 * [JENKINS-43737](https://issues.jenkins-ci.org/browse/JENKINS-43737) -
 Update to [Windows Service Wrapper 2.1.0](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md#210) to support new features: `<download>` command with authentication, flag for startup failure on `<download>` error, _Delayed Automatic Start_ mode.
