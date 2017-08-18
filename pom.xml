@@ -3,12 +3,12 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>2.26</version>
+    <version>2.33</version>
   </parent>
 
   <groupId>org.jenkins-ci.modules</groupId>
   <artifactId>windows-slave-installer</artifactId>
-  <version>1.10-SNAPSHOT</version>
+  <version>1.9.1-SNAPSHOT</version>
   <packaging>jenkins-module</packaging>
   <name>Windows agent installer</name>
   <description>Adds a GUI option to install the JNLP agent as a Windows service</description>
@@ -16,7 +16,7 @@
   <properties>
     <jenkins.version>1.625.3</jenkins.version>
     <java.level>7</java.level>
-    <winsw.version>2.1.0</winsw.version>
+    <winsw.version>2.1.2</winsw.version>
   </properties>
 
   <scm>
@@ -84,6 +84,11 @@
       <groupId>org.jenkins-ci.modules</groupId>
       <artifactId>slave-installer</artifactId>
       <version>1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.modules</groupId>
+      <artifactId>instance-identity</artifactId>
+      <version>1.4</version>
     </dependency>
   </dependencies>
 
