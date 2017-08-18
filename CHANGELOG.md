@@ -6,6 +6,19 @@ Below you can view changelogs for the trunk version of the Windows Agent Install
 This file also provides links to Jenkins versions, which bundle the released versions.
 See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
+## 1.9.1
+
+Release date: (Aug 18, 2017)
+
+This release updates [Windows Service Wrapper](https://github.com/kohsuke/winsw/) from `2.1.0` to `2.1.2`.
+Full changelog can be found [here](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md).
+
+Fixed issues:
+
+- [JENKINS-46282](https://issues.jenkins-ci.org/browse/JENKINS-46282) - Runaway Process Killer extension was not using the stopTimeoutMs parameter
+- [WinSW Issue #206](https://github.com/kohsuke/winsw/issues/206) - Prevent printing of log entries in the `status` command
+- [WinSW Issue #218](https://github.com/kohsuke/winsw/issues/218) - Prevent hanging of the stop executable when its logs are not being drained do the parent process
+
 ## 1.9
 
 Release date: (May 03, 2017) => Jenkins 2.60
