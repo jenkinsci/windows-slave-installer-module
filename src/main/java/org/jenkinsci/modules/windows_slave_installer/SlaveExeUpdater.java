@@ -46,9 +46,11 @@ public class SlaveExeUpdater extends ComputerListener {
     public void onOnline(Computer c, final TaskListener listener) throws IOException, InterruptedException {
         if (DISABLE_AUTOMATIC_UPDATE) return;
         if (!(c instanceof SlaveComputer))  return;
-        if(c.isUnix()) return;
+
 
         final SlaveComputer sc = (SlaveComputer) c;
+
+        if(sc.isUnix()) return;
 
         // do this asynchronously so as not to block Jenkins from using the slave right away
         MasterComputer.threadPoolForRemoting.submit(new Callable<Void>() {
