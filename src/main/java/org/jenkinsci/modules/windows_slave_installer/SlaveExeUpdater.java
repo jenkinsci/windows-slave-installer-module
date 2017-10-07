@@ -49,8 +49,10 @@ public class SlaveExeUpdater extends ComputerListener {
 
 
         final SlaveComputer sc = (SlaveComputer) c;
+        final Boolean isUnix = sc.isUnix();
 
-        if(sc.isUnix()) return;
+        if(!isUnix) return;
+
 
         // do this asynchronously so as not to block Jenkins from using the slave right away
         MasterComputer.threadPoolForRemoting.submit(new Callable<Void>() {
