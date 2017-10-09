@@ -50,6 +50,7 @@ public class SlaveExeUpdater extends ComputerListener {
 
         final SlaveComputer sc = (SlaveComputer) c;
 
+<<<<<<< HEAD
         try{
             if(sc.isUnix()) return;
         }catch (NullPointerException ex){
@@ -57,6 +58,9 @@ public class SlaveExeUpdater extends ComputerListener {
             return;
         }
 
+=======
+        if(isUnix) return;
+>>>>>>> c1deb5063d6599401c615ebd5fc11ff4da6fac19
 
 
         // do this asynchronously so as not to block Jenkins from using the slave right away
