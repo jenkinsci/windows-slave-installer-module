@@ -50,9 +50,9 @@ public class SlaveExeUpdater extends ComputerListener {
 
         final SlaveComputer sc = (SlaveComputer) c;
 
-        final Boolean isUnix = sc.isUnix()
+        final Boolean isUnix = sc.isUnix();
         if (isUnix == null || isUnix) { // Do not try installing on disconnected or Unix machines
-          return;
+            return;
         }
 
         // do this asynchronously so as not to block Jenkins from using the slave right away
