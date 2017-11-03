@@ -6,6 +6,13 @@ Below you can view changelogs for the trunk version of the Windows Agent Install
 This file also provides links to Jenkins versions, which bundle the released versions.
 See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
+## 1.9.2
+
+Release date: (Nov 03, 2017)
+
+* [JENKINS-47015](https://issues.jenkins-ci.org/browse/JENKINS-47015) -
+Performance: Do not try to update `jenkins-slave.exe` on Unix agents when they connect.
+
 ## 1.9.1
 
 Release date: (Aug 18, 2017)
