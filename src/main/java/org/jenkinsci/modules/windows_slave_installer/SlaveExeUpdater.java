@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
+
 /**
  * Overwrite <tt>jenkins-slave.exe</tt> by new copy.
  * 
@@ -49,10 +50,16 @@ public class SlaveExeUpdater extends ComputerListener {
 
         final SlaveComputer sc = (SlaveComputer) c;
 
+        final Boolean isUnix = sc.isUnix();
+        if (isUnix == null || isUnix) { // Do not try installing on disconnected or Unix machines
+            return;
+        }
+
         // do this asynchronously so as not to block Jenkins from using the slave right away
         MasterComputer.threadPoolForRemoting.submit(new Callable<Void>() {
             public Void call() throws Exception {
                 try {
+
                     Channel ch = sc.getChannel();
                     Slave n = sc.getNode();
                     if (n==null || ch==null)   return null;    // defensive check
