@@ -57,7 +57,25 @@ Windows Agent Installer module may be able to automatically upgrade the agent in
 3. If the upgrade happens, you should be able to see the message in the `Agent log` in Jenkins Web UI
 4. Once upgrade is done, the changes will be applied on the next Windows service restart
 
+#### Enabling Automatic upgrade
+
+##### Windows Service Wrapper
+
+The wrapper automatic upgrade is enabled by default.
+
+##### Remoting executable (slave.jar)
+
+Automatic upgrade is enabled for all newly created agents connected via HTTPs.
+You may need to enable automatic upgrades manually for agents installed as a service before Jenkins 2.50 **OR** for agents connected to the master over HTTP.
+In this case, open `jenkins-slave.xml` and remove the following line to enable automatic upgrades:
+
+```xml
+<download from="${JENKINS_URL}/jnlpJars/slave.jar" to="%BASE%\slave.jar"/>
+``` 
+
 #### Disabling Automatic upgrade
+
+##### Windows Service Wrapper
 
 In some cases Jenkins administrators may want to update WinSW to a version higher
 than the version provided by this module.
@@ -67,6 +85,14 @@ because the module performs automatic update.
 Starting from version `2.9` ([Jenkins 2.60](https://jenkins.io/changelog/#v2.60)), it is possible to disable such automatic upgrades by setting
 the `org.jenkinsci.modules.windows_slave_installer.disableAutoUpdate` System Property
 to `true`.
+
+##### Remoting executable (slave.jar)
+
+To disable the automatic Remoting executable upgrade, open `jenkins-slave.xml` and remove the following line:
+
+```xml
+<download from="${JENKINS_URL}/jnlpJars/slave.jar" to="%BASE%\slave.jar"/>
+```
 
 #### Manual upgrade
 
