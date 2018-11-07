@@ -6,6 +6,13 @@ Below you can view changelogs for the trunk version of the Windows Agent Install
 This file also provides links to Jenkins versions, which bundle the released versions.
 See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
+## 1.9.3
+
+Release date: Nov 07, 2018
+
+* [PR #21](https://github.com/jenkinsci/windows-slave-installer-module/pull/21) -
+Change the platform discovery approach to reduce the classloading traffic between master and agents
+
 ## 1.9.2
 
 Release date: (Nov 03, 2017)
