@@ -74,7 +74,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         install(params, prompter, false);
     }
     
-    @SuppressFBWarnings(value = "DM_EXIT", justification = "Legacy design, but as designed")
+    @SuppressFBWarnings(value = { "DM_EXIT", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" }, justification = "Legacy design, but as designed")
     /*package*/ void install(LaunchConfiguration params, Prompter prompter, boolean mock) throws InstallationException, IOException, InterruptedException {
         if(!mock && !DotNet.isInstalled(4, 0)) {
             throw new InstallationException(Messages.WindowsSlaveInstaller_DotNetRequired());
@@ -89,6 +89,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
 
         final File agentExe = new File(dir, "jenkins-slave.exe");
         FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe"), agentExe);
+
+        // removed since 1.13
+        new File(dir, "jenkins-slave.exe.config").delete();
 
         // write out the descriptor
         final String serviceId = generateServiceId(dir.getPath());
