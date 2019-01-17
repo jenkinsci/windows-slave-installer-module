@@ -6,6 +6,14 @@ Below you can view changelogs for the trunk version of the Windows Agent Install
 This file also provides links to Jenkins versions, which bundle the released versions.
 See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
+## 1.10.0
+
+Release date: Jan 17, 2019
+
+* [PR #22](https://github.com/jenkinsci/windows-slave-installer-module/pull/22) - 
+Update WinSW from 2.1.2 to 2.2.0 to support disabling, renaming and archiving service logs
+  * [Full changelog](https://github.com/kohsuke/winsw/blob/master/CHANGELOG.md#220)
+
 ## 1.9.3
 
 Release date: Nov 07, 2018
