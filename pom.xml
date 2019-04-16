@@ -9,13 +9,15 @@
 
   <groupId>org.jenkins-ci.modules</groupId>
   <artifactId>windows-slave-installer</artifactId>
-  <version>1.10.1-SNAPSHOT</version>
-  <packaging>jenkins-module</packaging>
+  <version>${revision}${changelist}</version>
+  <packaging>hpi</packaging>
   <name>Windows agent installer</name>
   <description>Adds a GUI option to install the JNLP agent as a Windows service</description>
 
   <properties>
-    <jenkins.version>2.60.3</jenkins.version>
+    <revision>2.0</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <jenkins.version>2.174-rc28240.3dc04f96ae74</jenkins.version> <!-- TODO first after 2.173 -->
     <java.level>8</java.level>
     <winsw.version>2.2.0</winsw.version>
     <spotbugs.effort>Max</spotbugs.effort>
@@ -26,7 +28,7 @@
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-module.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}-module.git</developerConnection>
     <url>https://github.com/jenkinsci/${project.artifactId}-module</url>
-    <tag>HEAD</tag>
+    <tag>${scmTag}</tag>
   </scm>
 
   <licenses>
@@ -71,13 +73,7 @@
     <dependency>
       <groupId>org.jenkins-ci.modules</groupId>
       <artifactId>slave-installer</artifactId>
-      <version>1.6</version>
-    </dependency>
-    <!-- Upper bounds issue in the Agent Installer Module -->
-    <dependency>
-      <groupId>org.jenkins-ci.modules</groupId>
-      <artifactId>instance-identity</artifactId>
-      <version>2.2</version>
+      <version>2.0-rc44.ab2f7e7f005e</version> <!-- TODO https://github.com/jenkinsci/slave-installer-module/pull/5 -->
     </dependency>
   </dependencies>
 
