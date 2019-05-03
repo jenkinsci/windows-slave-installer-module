@@ -6,6 +6,14 @@ Below you can view changelogs for the trunk version of the Windows Agent Install
 This file also provides links to Jenkins versions, which bundle the released versions.
 See [Jenkins changelog](https://jenkins.io/changelog/) for more details.
 
+## 1.11
+
+Release date: May 03, 2019
+
+* [JENKINS-51577](https://issues.jenkins-ci.org/browse/JENKINS-51577) -
+Enable TLS 1.2 by default when running with .NET 4.6 or above.
+It will enable downloads from recent HTTPS enpoints with disabled TLS 1.0.
+
 ## 1.10.0
 
 Release date: Jan 17, 2019
