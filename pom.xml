@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.jenkins-ci.modules</groupId>
       <artifactId>slave-installer</artifactId>
-      <version>1.6</version>
+      <version>1.7</version>
     </dependency>
     <!-- Upper bounds issue in the Agent Installer Module -->
     <dependency>
