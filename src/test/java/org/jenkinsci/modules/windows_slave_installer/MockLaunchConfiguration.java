@@ -23,8 +23,6 @@ THE SOFTWARE.
 */
 package org.jenkinsci.modules.windows_slave_installer;
 
-import hudson.remoting.Channel;
-import hudson.remoting.Which;
 import hudson.util.ArgumentListBuilder;
 import org.jenkinsci.modules.slave_installer.LaunchConfiguration;
 
