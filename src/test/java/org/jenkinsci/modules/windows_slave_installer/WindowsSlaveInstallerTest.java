@@ -34,12 +34,12 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import org.jenkinsci.modules.slave_installer.InstallationException;
 import org.jenkinsci.modules.slave_installer.LaunchConfiguration;
 import org.jenkinsci.modules.slave_installer.Prompter;
 import org.jenkinsci.modules.windows_slave_installer.WindowsSlaveInstaller.AgentURLMacroProvider;
 import org.junit.Assert;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -99,7 +99,7 @@ public class WindowsSlaveInstallerTest {
         
         // Try to resolve
         try {
-            String xml = WindowsSlaveInstaller.generateSlaveXml("serviceid", "myjava", "", "", macroValues);
+            WindowsSlaveInstaller.generateSlaveXml("serviceid", "myjava", "", "", macroValues);
         } catch (IOException ex) {
             assertThat("Exception message does not mention unresolved macros", 
                     ex.getMessage(), containsString("Unresolved macros in the XML file: "));
