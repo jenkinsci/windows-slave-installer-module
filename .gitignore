@@ -1,2 +1,8 @@
 /target/
 work
+
+# Visual Studio Code
+.project
+.settings
+.factorypath
+.classpath
