@@ -1,14 +1,10 @@
 package org.jenkinsci.modules.windows_slave_installer;
 
-import com.sun.jna.Native;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Launcher.LocalLauncher;
 import hudson.model.TaskListener;
 import hudson.util.StreamTaskListener;
 import hudson.util.jna.DotNet;
-import hudson.util.jna.Kernel32Utils;
-import hudson.util.jna.SHELLEXECUTEINFO;
-import hudson.util.jna.Shell32;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -20,10 +16,8 @@ import org.jenkinsci.modules.slave_installer.SlaveInstaller;
 import org.jvnet.localizer.Localizable;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
-import static hudson.util.jna.SHELLEXECUTEINFO.*;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,35 +66,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
      * If it fails in a way that indicates the presence of UAC, retry in an UAC compatible manner.
      */
     static int runElevated(File agentExe, String command, TaskListener out, File pwd) throws IOException, InterruptedException {
-        try {
-            return new LocalLauncher(out).launch().cmds(agentExe, command).stdout(out).pwd(pwd).join();
-        } catch (IOException e) {
-            if (e.getMessage().contains("CreateProcess") && e.getMessage().contains("=740")) {
-                // fall through
-            } else {
-                throw e;
-            }
-        }
-
-        // error code 740 is ERROR_ELEVATION_REQUIRED, indicating that
-        // we run in UAC-enabled Windows and we need to run this in an elevated privilege
-        SHELLEXECUTEINFO sei = new SHELLEXECUTEINFO();
-        sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-        sei.lpVerb = "runas";
-        sei.lpFile = agentExe.getAbsolutePath();
-        sei.lpParameters = "/redirect redirect.log "+command;
-        sei.lpDirectory = pwd.getAbsolutePath();
-        sei.nShow = SW_HIDE;
-        if (!Shell32.INSTANCE.ShellExecuteEx(sei))
-            throw new IOException("Failed to shellExecute: "+ Native.getLastError());
-
-        try {
-            return Kernel32Utils.waitForExitProcess(sei.hProcess);
-        } finally {
-            try (FileInputStream fin = new FileInputStream(new File(pwd, "redirect.log"))) {
-                IOUtils.copy(fin,out.getLogger());
-            }
-        }
+        return new LocalLauncher(out).launch().cmds(agentExe, command).stdout(out).pwd(pwd).join();
     }
 
     @Override
@@ -108,9 +74,9 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         install(params, prompter, false);
     }
     
-    @SuppressFBWarnings(value = "DM_EXIT", justification = "Legacy design, but as designed")
+    @SuppressFBWarnings(value = { "DM_EXIT", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" }, justification = "Legacy design, but as designed")
     /*package*/ void install(LaunchConfiguration params, Prompter prompter, boolean mock) throws InstallationException, IOException, InterruptedException {
-        if(!mock && !DotNet.isInstalled(2,0)) {
+        if(!mock && !DotNet.isInstalled(4, 0)) {
             throw new InstallationException(Messages.WindowsSlaveInstaller_DotNetRequired());
         }
         
@@ -124,8 +90,8 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         final File agentExe = new File(dir, "jenkins-slave.exe");
         FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe"), agentExe);
 
-        FileUtils.copyURLToFile(WindowsSlaveInstaller.class.getResource("jenkins-slave.exe.config"),
-                new File(dir,"jenkins-slave.exe.config"));
+        // removed since 1.13
+        new File(dir, "jenkins-slave.exe.config").delete();
 
         // write out the descriptor
         final String serviceId = generateServiceId(dir.getPath());

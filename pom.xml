@@ -54,7 +54,7 @@
                   <groupId>com.sun.winsw</groupId>
                   <artifactId>winsw</artifactId>
                   <version>${winsw.version}</version>
-                  <classifier>bin</classifier>
+                  <classifier>net4</classifier>
                   <type>exe</type>
                   <outputDirectory>${project.build.outputDirectory}/org/jenkinsci/modules/windows_slave_installer</outputDirectory>
                   <destFileName>jenkins-slave.exe</destFileName>

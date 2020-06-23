@@ -179,7 +179,6 @@ public class WindowsSlaveInstallerTest {
     
     private static void verifyAgentDirectory(File dir) throws AssertionError {
         assertAgentFile(dir, "jenkins-slave.exe");
-        assertAgentFile(dir, "jenkins-slave.exe.config");
         assertAgentFile(dir, "jenkins-slave.xml");
         assertAgentFile(dir, "slave.jar");
     }
