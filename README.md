@@ -5,7 +5,7 @@ This module is a part of the Jenkins core, which provides features for managing 
 
 Provided features:
 
-* Installation agents as Windows services, powered by the [Windows Service Wrapper (WinSW)](https://github.com/kohsuke/winsw). 
+* Installation agents as Windows services, powered by the [Windows Service Wrapper (WinSW)](https://github.com/kohsuke/winsw).
 * GUI option for the JNLP agents, which adds the `Install as a service` menu option.
 * Automatic upgrade of Windows service wrapper versions to keep them aligned with the version from this module.
 
@@ -15,12 +15,21 @@ See the changelog [here](./CHANGELOG.md).
 
 ## Installation 
 
+### System requirements
+
+* Starting from version 2.0, .NET Framework 4.0 or higher is required to install Jenkins agents as Windows services.
+* Jenkins System Requirements apply to agents installed by this module
+  * [Windows Support Policy](https://www.jenkins.io/doc/administration/requirements/windows/)
+  * [Java requirements](https://www.jenkins.io/doc/administration/requirements/java/)
+  * [Hardware requirements](https://www.jenkins.io/doc/book/installing/#prerequisites)
+
 ### Automatic
 
 Once you start a JNLP agents on Windows in the GUI mode (e.g. via Java WebStart), 
 It will display the `Install as a service` menu option once the Jenkins master finishes the agent configuration.
 
 * The agent will be installed if your Windows account has enough permissions to install Windows Services and to access the System and Application event logs.
+* If the current account does not have enough permissions, the installer will prompt for permission elevation.
 
 ### Manual
 
