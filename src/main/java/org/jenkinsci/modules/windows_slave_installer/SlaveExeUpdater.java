@@ -40,7 +40,7 @@ public class SlaveExeUpdater extends ComputerListener {
      * The system property needs to be set up for master only.
      * @since 1.9
      */
-    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Should be accessible to System Grrovy Scripts")
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Should be accessible to System Groovy Scripts")
     static boolean DISABLE_AUTOMATIC_UPDATE = Boolean.getBoolean("org.jenkinsci.modules.windows_slave_installer.disableAutoUpdate");
     
     @Override @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
