@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.57</version>
+    <version>4.3</version>
     <relativePath />
   </parent>
 
@@ -15,7 +15,7 @@
   <description>Adds a GUI option to install the JNLP agent as a Windows service</description>
 
   <properties>
-    <jenkins.version>2.60.3</jenkins.version>
+    <jenkins.version>2.235.1</jenkins.version>
     <java.level>8</java.level>
     <winsw.version>2.9.0</winsw.version>
     <spotbugs.effort>Max</spotbugs.effort>
