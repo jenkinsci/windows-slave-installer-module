@@ -9,7 +9,7 @@
 
   <groupId>org.jenkins-ci.modules</groupId>
   <artifactId>windows-slave-installer</artifactId>
-  <version>2.0</version>
+  <version>2.1-SNAPSHOT</version>
   <packaging>jenkins-module</packaging>
   <name>Windows agent installer</name>
   <description>Adds a GUI option to install the JNLP agent as a Windows service</description>
@@ -26,7 +26,7 @@
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-module.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}-module.git</developerConnection>
     <url>https://github.com/jenkinsci/${project.artifactId}-module</url>
-    <tag>windows-slave-installer-2.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <licenses>
