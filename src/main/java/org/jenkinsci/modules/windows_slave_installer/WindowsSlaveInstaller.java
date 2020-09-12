@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -117,7 +118,7 @@ public class WindowsSlaveInstaller extends SlaveInstaller {
         StreamTaskListener task = new StreamTaskListener(baos);
         int r = runElevated(agentExe,"install",task,dir);
         if(r!=0)
-            throw new InstallationException(baos.toString());
+            throw new InstallationException(baos.toString(Charset.defaultCharset()));
 
         // no mechanism to do confirmation
 //        r = JOptionPane.showConfirmDialog(dialog,
