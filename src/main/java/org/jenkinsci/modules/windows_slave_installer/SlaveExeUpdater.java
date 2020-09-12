@@ -2,9 +2,9 @@ package org.jenkinsci.modules.windows_slave_installer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.sun.jna.Memory;
@@ -27,6 +27,7 @@ import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
 import hudson.slaves.ComputerListener;
 import hudson.slaves.SlaveComputer;
+import hudson.util.VersionNumber;
 import jenkins.SlaveToMasterFileCallable;
 import jenkins.model.Jenkins.MasterComputer;
 
@@ -40,10 +41,10 @@ import jenkins.model.Jenkins.MasterComputer;
 @RestrictedSince("1.9")
 public class SlaveExeUpdater extends ComputerListener {
 
-    private static class GetVersion extends SlaveToMasterFileCallable<List<Integer>> {
+    private static class GetVersion extends SlaveToMasterFileCallable<VersionNumber> {
         private static final long serialVersionUID = 1L;
         @Override
-        public List<Integer> invoke(File f, VirtualChannel channel) {
+        public VersionNumber invoke(File f, VirtualChannel channel) {
             String path = f.getPath();
             int size = Version.INSTANCE.GetFileVersionInfoSize(path, new IntByReference());
             if (size == 0)
@@ -58,18 +59,19 @@ public class SlaveExeUpdater extends ComputerListener {
                 return null;
 
             VS_FIXEDFILEINFO info = new VS_FIXEDFILEINFO(buffer.getValue());
-            return Arrays.asList(
-                info.dwFileVersionMS.getHigh().intValue(),
-                info.dwFileVersionMS.getLow().intValue(),
-                info.dwFileVersionLS.getHigh().intValue()
-            );
+
+            int major = info.dwFileVersionMS.getHigh().intValue();
+            int minor = info.dwFileVersionMS.getLow().intValue();
+            int patch = info.dwFileVersionLS.getHigh().intValue();
+            String version = String.format("%d.%d.%d", major, minor, patch);
+            return new VersionNumber(version);
         }
     }
 
     /**
      * Our versions of jenkins-slave.exe defined in pom.xml
      */
-    private List<Integer> ourVersions;
+    private VersionNumber ourVersion;
 
     /**
      * Disables automatic update of Windows Service Wrapper on agents.
@@ -105,30 +107,25 @@ public class SlaveExeUpdater extends ComputerListener {
                     FilePath agentExe = root.child("jenkins-slave.exe");
                     if (!agentExe.exists())     return null;    // nothing to update
 
-                    List<Integer> currentVersions = agentExe.act(new GetVersion());
+                    VersionNumber currentVersion = agentExe.act(new GetVersion());
 
-                    if (currentVersions == null)
+                    if (currentVersion == null)
                         return null;
 
-                    if (ourVersions == null) {
-                        // NOTE: Keep in sync with <winsw.version> in pom.xml.
-                        ourVersions = Arrays.asList(2, 9, 0);
-                    }
+                    if (ourVersion == null) {
+                        try (InputStream stream = WindowsSlaveInstaller.class.getResourceAsStream("/winsw.properties")) {
+                            if (stream == null) {
+                                throw new IOException("Cannot find winsw.properties");
+                            }
 
-                    boolean oursIsNewer = false;
-                    for (int i = 0; i < ourVersions.size(); i++) {
-                        if (ourVersions.get(i) > currentVersions.get(i)) {
-                            oursIsNewer = true;
-                            break;
-                        }
-
-                        if (ourVersions.get(i) < currentVersions.get(i)) {
-                            oursIsNewer = false;
-                            break;
+                            Properties properties = new Properties();
+                            properties.load(stream);
+                            String version = properties.getProperty("winsw.version");
+                            ourVersion = new VersionNumber(version);
                         }
                     }
 
-                    if (!oursIsNewer)
+                    if (!ourVersion.isNewerThan(currentVersion))
                         return null;
 
                     URL ourExe = WindowsSlaveInstaller.class.getResource("jenkins-slave.exe");

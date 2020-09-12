@@ -17,7 +17,6 @@
   <properties>
     <jenkins.version>2.235.1</jenkins.version>
     <java.level>8</java.level>
-    <!-- NOTE: Keep in sync with SlaveExeUpdater. -->
     <winsw.version>2.9.0</winsw.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <spotbugs.threshold>Low</spotbugs.threshold>
@@ -64,6 +63,19 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <resources>
+            <resource>
+              <directory>src/main/resources-filtered</directory>
+              <filtering>true</filtering>
+            </resource>
+          </resources>
+        </configuration>
       </plugin>
     </plugins>
   </build>
