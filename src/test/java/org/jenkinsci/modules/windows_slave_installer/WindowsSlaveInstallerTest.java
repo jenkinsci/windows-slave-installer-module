@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -119,7 +120,7 @@ public class WindowsSlaveInstallerTest {
         
         final String xml;
         try (FileInputStream istream = new FileInputStream(new File(tmpDir.getRoot(), "agentDir/jenkins-slave.xml"))) {
-            xml = IOUtils.toString(istream);
+            xml = IOUtils.toString(istream, Charset.defaultCharset());
         }
         
         // Verify that the directory has been initialized correctly
