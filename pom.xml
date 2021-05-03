@@ -64,6 +64,19 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <resources>
+            <resource>
+              <directory>src/main/resources-filtered</directory>
+              <filtering>true</filtering>
+            </resource>
+          </resources>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -78,6 +91,11 @@
       <groupId>org.jenkins-ci.modules</groupId>
       <artifactId>instance-identity</artifactId>
       <version>2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna-platform</artifactId>
+      <version>5.5.0</version>
     </dependency>
   </dependencies>
 
