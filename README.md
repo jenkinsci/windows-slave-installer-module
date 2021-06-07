@@ -76,7 +76,7 @@ The wrapper automatic upgrade is enabled by default.
 
 Automatic upgrade is enabled for all newly created agents connected via HTTPs.
 You may need to enable automatic upgrades manually for agents installed as a service before Jenkins 2.50 **OR** for agents connected to the master over HTTP.
-In this case, open `jenkins-slave.xml` and remove the following line to enable automatic upgrades:
+In this case, open `jenkins-slave.xml` and add the following line to enable automatic upgrades:
 
 ```xml
 <download from="${JENKINS_URL}/jnlpJars/slave.jar" to="%BASE%\slave.jar"/>
