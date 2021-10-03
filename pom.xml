@@ -56,8 +56,8 @@
                   <version>${winsw.version}</version>
                   <classifier>net4</classifier>
                   <type>exe</type>
-                  <outputDirectory>${project.build.outputDirectory}/org/jenkinsci/modules/windows_slave_installer</outputDirectory>
-                  <destFileName>jenkins-slave.exe</destFileName>
+                  <outputDirectory>${project.build.outputDirectory}/org/jenkinsci/modules/windows_agent_installer</outputDirectory>
+                  <destFileName>jenkins-agent.exe</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>

@@ -1,4 +1,4 @@
-package org.jenkinsci.modules.windows_slave_installer;
+package org.jenkinsci.modules.windows_agent_installer;
 
 import hudson.Extension;
 import hudson.FilePath;
@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 
 @Extension
-public class SlaveInstallerFactoryImpl extends SlaveInstallerFactory {
+public class AgentInstallerFactoryImpl extends SlaveInstallerFactory {
     @Inject
     InstanceIdentity id;
 
@@ -21,7 +21,7 @@ public class SlaveInstallerFactoryImpl extends SlaveInstallerFactory {
         if (new FilePath(c, ".").createLauncher(TaskListener.NULL).isUnix()) {
             return null;
         } else {
-            return new WindowsSlaveInstaller();
+            return new WindowsAgentInstaller();
         }
     }
 
