@@ -1,4 +1,4 @@
-package org.jenkinsci.modules.windows_slave_installer;
+package org.jenkinsci.modules.windows_agent_installer;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
@@ -21,18 +21,20 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 
 /**
- * Overwrite <tt>jenkins-slave.exe</tt> by new copy.
+ * Overwrite <tt>jenkins-agent.exe</tt> by new copy.
  * 
  * @author Kohsuke Kawaguchi
  */
 @Extension
 @Restricted(NoExternalUse.class)
 @RestrictedSince("1.9")
-public class SlaveExeUpdater extends ComputerListener {
+public class AgentExeUpdater extends ComputerListener {
     /**
-     * MD5 checksum of jenkins-slave.exe in our resource
+     * MD5 checksum of jenkins-agent.exe in our resource
      */
     private volatile String ourCopy;
+
+    public static final String AGENT_EXE_NAME = "jenkins-agent.exe";
 
     /**
      * Disables automatic update of Windows Service Wrapper on agents.
@@ -41,7 +43,7 @@ public class SlaveExeUpdater extends ComputerListener {
      * @since 1.9
      */
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Should be accessible to System Groovy Scripts")
-    static boolean DISABLE_AUTOMATIC_UPDATE = Boolean.getBoolean("org.jenkinsci.modules.windows_slave_installer.disableAutoUpdate");
+    static boolean DISABLE_AUTOMATIC_UPDATE = Boolean.getBoolean("org.jenkinsci.modules.windows_agent_installer.disableAutoUpdate");
     
     @Override @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void onOnline(Computer c, final TaskListener listener) throws IOException, InterruptedException {
@@ -55,7 +57,7 @@ public class SlaveExeUpdater extends ComputerListener {
             return;
         }
 
-        // do this asynchronously so as not to block Jenkins from using the slave right away
+        // do this asynchronously so as not to block Jenkins from using the agent right away
         MasterComputer.threadPoolForRemoting.submit(new Callable<Void>() {
             public Void call() throws Exception {
                 try {
@@ -65,19 +67,19 @@ public class SlaveExeUpdater extends ComputerListener {
                     if (n==null || ch==null)   return null;    // defensive check
 
                     FilePath root = new FilePath(ch, n.getRemoteFS());
-                    FilePath agentExe = root.child("jenkins-slave.exe");
+                    FilePath agentExe = root.child(AGENT_EXE_NAME);
                     if (!agentExe.exists())     return null;    // nothing to update
 
                     String current = agentExe.digest();
 
-                    URL ourExe = WindowsSlaveInstaller.class.getResource("jenkins-slave.exe");
+                    URL ourExe = WindowsAgentInstaller.class.getResource(AGENT_EXE_NAME);
                     if (ourCopy==null) {
                         ourCopy = Util.getDigestOf(ourExe.openStream());
                     }
 
                     if(ourCopy.equals(current))     return null; // identical
 
-                    // at this point we want to overwrite jenkins-slave.exe on slave with our copy.
+                    // at this point we want to overwrite jenkins-agent.exe on agent with our copy.
                     // This is tricky because the process is running. The trick is to rename the current
                     // file and place a new file in the correct name.
 
@@ -88,7 +90,7 @@ public class SlaveExeUpdater extends ComputerListener {
                         try {
                             backup.delete();
                         } catch (IOException e) {
-                            listener.getLogger().println("Looks like jenkins-slave.exe.bak is currently running. aborting overwrite");
+                            listener.getLogger().printf("Looks like %s.bak is currently running. aborting overwrite", AGENT_EXE_NAME);
                             return null;
                         }
                     }
@@ -96,9 +98,9 @@ public class SlaveExeUpdater extends ComputerListener {
                     tmp.copyFrom(ourExe);
                     agentExe.renameTo(backup);
                     tmp.renameTo(agentExe);
-                    listener.getLogger().println("Scheduled overwrite of jenkins-slave.exe on the next service startup");
+                    listener.getLogger().printf("Scheduled overwrite of %s on the next service startup", AGENT_EXE_NAME);
                 } catch (Throwable e) {
-                    e.printStackTrace(listener.error("Failed to update jenkins-slave.exe"));
+                    e.printStackTrace(listener.error("Failed to update " + AGENT_EXE_NAME));
                 }
 
                 return null;

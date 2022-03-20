@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package org.jenkinsci.modules.windows_slave_installer;
+package org.jenkinsci.modules.windows_agent_installer;
 
 import hudson.util.ArgumentListBuilder;
 import org.jenkinsci.modules.slave_installer.LaunchConfiguration;
@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.net.URL;
 import javax.annotation.CheckForNull;
 
-//TODO: consider moving the class to slave_installer module
+//TODO: consider moving the class to agent_installer module
 /**
  * Mock Launch Configuration for testing purposes.
  * @author Oleg Nenashev

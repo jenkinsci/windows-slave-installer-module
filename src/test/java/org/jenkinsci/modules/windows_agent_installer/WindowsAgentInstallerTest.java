@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-package org.jenkinsci.modules.windows_slave_installer;
+package org.jenkinsci.modules.windows_agent_installer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +39,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.jenkinsci.modules.slave_installer.InstallationException;
 import org.jenkinsci.modules.slave_installer.LaunchConfiguration;
 import org.jenkinsci.modules.slave_installer.Prompter;
-import org.jenkinsci.modules.windows_slave_installer.WindowsSlaveInstaller.AgentURLMacroProvider;
+import org.jenkinsci.modules.windows_agent_installer.WindowsAgentInstaller.AgentURLMacroProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,10 +48,10 @@ import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.Issue;
 
 /**
- * Tests of {@link WindowsSlaveInstaller}.
+ * Tests of {@link WindowsAgentInstaller}.
  * @author Oleg Nenashev
  */
-public class WindowsSlaveInstallerTest {
+public class WindowsAgentInstallerTest {
     
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -87,7 +87,7 @@ public class WindowsSlaveInstallerTest {
     @Issue("JENKINS-42745")
     public void shouldGenerateValidConfigWithOldAPI() throws Exception {
         @SuppressWarnings("deprecation")
-        String xml = WindowsSlaveInstaller.generateSlaveXml("serviceid", "myjava", "", "");
+        String xml = WindowsAgentInstaller.generateAgentXml("serviceid", "myjava", "", "");
         assertThat("There is unresolved macro", xml, not(containsString("@")));
     }
     
@@ -100,7 +100,7 @@ public class WindowsSlaveInstallerTest {
         
         // Try to resolve
         try {
-            WindowsSlaveInstaller.generateSlaveXml("serviceid", "myjava", "", "", macroValues);
+            WindowsAgentInstaller.generateAgentXml("serviceid", "myjava", "", "", macroValues);
         } catch (IOException ex) {
             assertThat("Exception message does not mention unresolved macros", 
                     ex.getMessage(), containsString("Unresolved macros in the XML file: "));
@@ -115,11 +115,11 @@ public class WindowsSlaveInstallerTest {
     @Issue("JENKINS-39237")
     public void shouldGenerateConfigWithValidDownloadLink() throws InstallationException, IOException, InterruptedException {
         
-        WindowsSlaveInstaller installer = new WindowsSlaveInstaller();
+        WindowsAgentInstaller installer = new WindowsAgentInstaller();
         installer.install(launchConfig, prompter, true);
         
         final String xml;
-        try (FileInputStream istream = new FileInputStream(new File(tmpDir.getRoot(), "agentDir/jenkins-slave.xml"))) {
+        try (FileInputStream istream = new FileInputStream(new File(tmpDir.getRoot(), "agentDir/jenkins-agent.xml"))) {
             xml = IOUtils.toString(istream, Charset.defaultCharset());
         }
         
@@ -164,7 +164,7 @@ public class WindowsSlaveInstallerTest {
     }
     
     private static String downloadMacroFor(@CheckForNull String url) throws MalformedURLException  {
-        return WindowsSlaveInstaller.AgentURLMacroProvider.generateDownloadMacroValue
+        return WindowsAgentInstaller.AgentURLMacroProvider.generateDownloadMacroValue
             (url != null ? new URL(url) : null);
     }
     
@@ -179,9 +179,9 @@ public class WindowsSlaveInstallerTest {
     }
     
     private static void verifyAgentDirectory(File dir) throws AssertionError {
-        assertAgentFile(dir, "jenkins-slave.exe");
-        assertAgentFile(dir, "jenkins-slave.xml");
-        assertAgentFile(dir, "slave.jar");
+        assertAgentFile(dir, "jenkins-agent.exe");
+        assertAgentFile(dir, "jenkins-agent.xml");
+        assertAgentFile(dir, "agent.jar");
     }
     
     private static void assertAgentFile(File parent, String child) throws AssertionError {
