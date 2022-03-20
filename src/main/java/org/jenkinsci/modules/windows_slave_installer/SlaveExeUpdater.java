@@ -1,24 +1,35 @@
 package org.jenkinsci.modules.windows_slave_installer;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+
+import com.sun.jna.Memory;
+import com.sun.jna.platform.win32.VerRsrc.VS_FIXEDFILEINFO;
+import com.sun.jna.platform.win32.Version;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.RestrictedSince;
-import hudson.Util;
 import hudson.model.Computer;
 import hudson.model.Slave;
 import hudson.model.TaskListener;
 import hudson.remoting.Channel;
+import hudson.remoting.VirtualChannel;
 import hudson.slaves.ComputerListener;
 import hudson.slaves.SlaveComputer;
+import hudson.util.VersionNumber;
+import jenkins.SlaveToMasterFileCallable;
 import jenkins.model.Jenkins.MasterComputer;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.concurrent.Callable;
-import org.kohsuke.accmod.Restricted;
-import org.kohsuke.accmod.restrictions.NoExternalUse;
-
 
 /**
  * Overwrite <tt>jenkins-slave.exe</tt> by new copy.
@@ -29,10 +40,38 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
 @Restricted(NoExternalUse.class)
 @RestrictedSince("1.9")
 public class SlaveExeUpdater extends ComputerListener {
+
+    private static class GetVersion extends SlaveToMasterFileCallable<VersionNumber> {
+        private static final long serialVersionUID = 1L;
+        @Override
+        public VersionNumber invoke(File f, VirtualChannel channel) {
+            String path = f.getPath();
+            int size = Version.INSTANCE.GetFileVersionInfoSize(path, new IntByReference());
+            if (size == 0)
+                return null;
+
+            Memory data = new Memory(size);
+            if (!Version.INSTANCE.GetFileVersionInfo(path, 0, size, data))
+                return null;
+
+            PointerByReference buffer = new PointerByReference();
+            if (!Version.INSTANCE.VerQueryValue(data, "\\", buffer, new IntByReference()))
+                return null;
+
+            VS_FIXEDFILEINFO info = new VS_FIXEDFILEINFO(buffer.getValue());
+
+            int major = info.dwFileVersionMS.getHigh().intValue();
+            int minor = info.dwFileVersionMS.getLow().intValue();
+            int patch = info.dwFileVersionLS.getHigh().intValue();
+            String version = String.format("%d.%d.%d", major, minor, patch);
+            return new VersionNumber(version);
+        }
+    }
+
     /**
-     * MD5 checksum of jenkins-slave.exe in our resource
+     * Our versions of jenkins-slave.exe defined in pom.xml
      */
-    private volatile String ourCopy;
+    private VersionNumber ourVersion;
 
     /**
      * Disables automatic update of Windows Service Wrapper on agents.
@@ -68,14 +107,28 @@ public class SlaveExeUpdater extends ComputerListener {
                     FilePath agentExe = root.child("jenkins-slave.exe");
                     if (!agentExe.exists())     return null;    // nothing to update
 
-                    String current = agentExe.digest();
+                    VersionNumber currentVersion = agentExe.act(new GetVersion());
 
-                    URL ourExe = WindowsSlaveInstaller.class.getResource("jenkins-slave.exe");
-                    if (ourCopy==null) {
-                        ourCopy = Util.getDigestOf(ourExe.openStream());
+                    if (currentVersion == null)
+                        return null;
+
+                    if (ourVersion == null) {
+                        try (InputStream stream = WindowsSlaveInstaller.class.getResourceAsStream("/winsw.properties")) {
+                            if (stream == null) {
+                                throw new IOException("Cannot find winsw.properties");
+                            }
+
+                            Properties properties = new Properties();
+                            properties.load(stream);
+                            String version = properties.getProperty("winsw.version");
+                            ourVersion = new VersionNumber(version);
+                        }
                     }
 
-                    if(ourCopy.equals(current))     return null; // identical
+                    if (!ourVersion.isNewerThan(currentVersion))
+                        return null;
+
+                    URL ourExe = WindowsSlaveInstaller.class.getResource("jenkins-slave.exe");
 
                     // at this point we want to overwrite jenkins-slave.exe on slave with our copy.
                     // This is tricky because the process is running. The trick is to rename the current
